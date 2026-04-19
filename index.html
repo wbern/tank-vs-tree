@@ -43,6 +43,7 @@
   #msg{position:absolute;top:26%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);padding:10px 22px;border-radius:4px;font-size:16px;text-shadow:2px 2px 0 #000;display:none;z-index:8;border:2px solid #ffa500;pointer-events:none;text-align:center;white-space:nowrap}
   #prompt{position:absolute;bottom:30%;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);padding:6px 12px;border-radius:3px;font-size:13px;display:none;z-index:6;pointer-events:none}
   #ctrl{position:absolute;bottom:6px;left:8px;font-size:10px;opacity:.55;pointer-events:none}
+  #credits{position:absolute;bottom:6px;right:8px;font-size:10px;opacity:.55;pointer-events:none;color:#ffa500}
 
   #over,#win{position:absolute;inset:0;background:rgba(0,0,0,.92);display:none;flex-direction:column;justify-content:center;align-items:center;z-index:20;text-align:center;padding:20px}
   #over h1{color:#f44;font-size:52px;margin-bottom:10px}
@@ -73,6 +74,7 @@
   <div id="msg"></div>
   <div id="prompt"></div>
   <div id="ctrl">A/D or &larr;&rarr; move &nbsp;|&nbsp; W/Space/&uarr; jump &nbsp;|&nbsp; Mouse aim &nbsp;|&nbsp; Click / X shoot &nbsp;|&nbsp; E shop</div>
+  <div id="credits">A game by Mr. Hagelpump</div>
   <div id="over">
     <h1>GAME OVER</h1>
     <div>Your tank was destroyed.</div>
@@ -83,6 +85,7 @@
     <div>The Great Tree has fallen.</div>
     <div style="margin-top:8px;color:#aaa">Carrots: <span id="fcv">0</span></div>
     <button onclick="restartGame()">PLAY AGAIN</button>
+    <div style="margin-top:24px;color:#ffa500;font-size:12px;letter-spacing:2px">A GAME BY MR. HAGELPUMP</div>
   </div>
 </div>
 <script>
