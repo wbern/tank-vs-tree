@@ -16,6 +16,18 @@
   .bar>div{height:100%;transition:width .15s}
   .hp{background:linear-gradient(90deg,#e33,#f85)}
   .sh{background:linear-gradient(90deg,#4bf,#9cf);position:absolute;top:0;left:0;opacity:.85}
+  #stats{display:flex;gap:8px;margin-top:4px;font-size:11px;letter-spacing:1px}
+  #stats .sbox{background:rgba(0,0,0,.6);border:1px solid #556;padding:2px 6px;border-radius:2px;min-width:52px}
+  #stats .sbox .lbl{color:#8cd;font-size:9px}
+  #stats .sbox .val{color:#ffd27a;font-weight:700;font-size:13px}
+  #stats .sbox.ammo .val{color:#9cf}
+  #stats .sbox.low .val{color:#f55}
+  #ownedUp{position:absolute;left:10px;bottom:32px;max-width:640px;z-index:4;pointer-events:none;display:flex;flex-wrap:wrap;gap:3px;font-size:11px}
+  #ownedUp .up{background:rgba(0,0,0,.65);border:1px solid #3a3a50;padding:2px 5px;border-radius:2px;display:inline-flex;align-items:center;gap:3px;text-shadow:1px 1px 0 #000}
+  #ownedUp .up .ic{font-size:12px}
+  #ownedUp .up .lv{color:#ffd27a;font-weight:700;font-size:10px}
+  #ownedUp .up.sec{border-color:#c080ff;background:rgba(40,10,60,.75)}
+  #ownedUp .up.sec .lv{color:#e0c0ff}
 
   #treeHud{position:absolute;top:10px;right:10px;font-size:13px;text-shadow:2px 2px 0 #000;text-align:right;display:none;z-index:5}
   #treeHud .bar{width:260px;height:14px;margin-top:4px;display:block}
@@ -23,6 +35,11 @@
   #levelHud{position:absolute;top:10px;right:10px;font-size:13px;text-shadow:2px 2px 0 #000;text-align:right;z-index:4;color:#ffd27a;letter-spacing:2px}
   #treeHud #bossName{color:#ffdada;letter-spacing:1px}
   #secretPop{position:absolute;top:38%;left:50%;transform:translateX(-50%);background:rgba(20,0,40,.88);padding:10px 22px;border-radius:4px;font-size:15px;text-shadow:2px 2px 0 #000;display:none;z-index:8;border:2px solid #c080ff;color:#e0c0ff;pointer-events:none;text-align:center;letter-spacing:1px;box-shadow:0 0 28px rgba(200,120,255,.6)}
+  #mapHud{position:absolute;bottom:18%;left:50%;transform:translateX(-50%);text-align:center;color:#ffd27a;text-shadow:2px 2px 0 #000;letter-spacing:3px;z-index:5;pointer-events:none;display:none}
+  #mapHud .title{font-size:22px;color:#ffeab0;margin-bottom:4px}
+  #mapHud .sub{font-size:12px;opacity:.85}
+  #mapHud .status{font-size:11px;color:#7cf07c;margin-top:2px;letter-spacing:2px;min-height:14px}
+  #mapTop{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:16px;color:#9f9;text-shadow:2px 2px 0 #000;letter-spacing:4px;z-index:5;pointer-events:none;display:none}
 
   #shop{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(6,6,12,.97);border:3px solid #ffa500;border-radius:6px;padding:14px 18px;width:560px;max-height:94%;overflow-y:auto;display:none;z-index:10;box-shadow:0 0 40px rgba(255,165,0,.35)}
   #shop h2{color:#ffa500;text-align:center;margin-bottom:4px;font-size:18px;letter-spacing:2px}
@@ -62,9 +79,16 @@
   <canvas id="cv" width="960" height="540"></canvas>
   <div id="hud">
     <div>HEALTH <span class="bar"><div class="hp" id="hpb" style="width:100%"></div><div class="sh" id="shb" style="width:0"></div></span></div>
+    <div id="stats">
+      <div class="sbox"><div class="lbl">DMG</div><div class="val" id="stDmg">5</div></div>
+      <div class="sbox"><div class="lbl">HP</div><div class="val" id="stHp">100</div></div>
+      <div class="sbox"><div class="lbl">ARMOR</div><div class="val" id="stArm">0</div></div>
+      <div class="sbox ammo"><div class="lbl">BULLETS</div><div class="val" id="stAmmo">40</div></div>
+    </div>
     <div>CARROTS <span id="cv1">0</span></div>
-    <div>UPGRADES <span id="cv2">0</span>/20</div>
+    <div>UPGRADES <span id="cv2">0</span>/35</div>
   </div>
+  <div id="ownedUp"></div>
   <div id="musicHint">[M] MUSIC: <span id="musicState">OFF</span></div>
   <div id="levelHud">LEVEL <span id="levelN">1</span>/3 &middot; <span id="levelName">THE FOREST</span></div>
   <div id="treeHud">
@@ -72,6 +96,12 @@
     <div class="bar"><div id="treebar" style="width:100%"></div></div>
   </div>
   <div id="secretPop"></div>
+  <div id="mapTop">WORLD MAP &mdash; CHOOSE YOUR BATTLE</div>
+  <div id="mapHud">
+    <div class="title" id="mapName">THE FOREST</div>
+    <div class="sub">A/D or &larr;&rarr; to select &nbsp;&middot;&nbsp; ENTER or E to play</div>
+    <div class="status" id="mapStatus">&nbsp;</div>
+  </div>
   <div id="shop">
     <h2>UPGRADE SHOP</h2>
     <div class="cc"><span id="shopC">0</span> carrots</div>
@@ -84,12 +114,12 @@
   <div id="credits">A game by Mr. Hagelpump</div>
   <div id="over">
     <h1>GAME OVER</h1>
-    <div>Your tank was destroyed.</div>
-    <button onclick="restartGame()">TRY AGAIN</button>
+    <div id="overMsg">Your tank was destroyed. All progress has been wiped.</div>
+    <button id="overBtn" onclick="handleDeathRestart()">START OVER</button>
   </div>
   <div id="win">
     <h1>VICTORY!</h1>
-    <div>The Great Tree has fallen.</div>
+    <div>All three bosses have fallen.</div>
     <div style="margin-top:8px;color:#aaa">Carrots: <span id="fcv">0</span></div>
     <button onclick="restartGame()">PLAY AGAIN</button>
     <div style="margin-top:24px;color:#ffa500;font-size:12px;letter-spacing:2px">A GAME BY MR. HAGELPUMP</div>
@@ -109,28 +139,53 @@ import * as THREE from 'three';
 const W = 960, H = 540, GY = 500, WW = 7600, G = 0.55;
 const toY = y => GY - y; // 2D screen-y to 3D world-y (ground=0, up=+)
 
-// ===== Upgrades: 20 total (15 scalable + 5 binary) =====
+// ===== Upgrades: 21 total (15 scalable + 5 binary + 1 consumable) =====
 const UPG = [
-  { id:'damage',    n:'Bigger Shells',      d:'+25% bullet damage per level',     base:4, max:10, cat:'OFFENSE',  i:'\uD83D\uDCA5' },
-  { id:'rate',      n:'Rapid Fire',         d:'+8% fire rate per level',          base:4, max:10, cat:'OFFENSE',  i:'\uD83D\uDD25' },
-  { id:'bspeed',    n:'Bullet Velocity',    d:'+10% bullet speed per level',      base:2, max:10, cat:'OFFENSE',  i:'\u2744'  },
-  { id:'pierce',    n:'Piercing Rounds',    d:'Bullets pierce +1 enemy per lvl',  base:4, max:10, cat:'OFFENSE',  i:'\u27A1'  },
-  { id:'ricochet',  n:'Ricochet',           d:'Bullets bounce +1 time per lvl',   base:4, max:10, cat:'OFFENSE',  i:'\uD83D\uDD04' },
-  { id:'crit',      n:'Critical Hits',      d:'+3% crit chance (\u00D73 damage)', base:4, max:10, cat:'OFFENSE',  i:'\uD83C\uDFAF' },
-  { id:'multishot', n:'Multi-Shot',         d:'Fire 3 bullets in a spread',       cost:80,  max:1, cat:'OFFENSE',  i:'\uD83C\uDF87' },
-  { id:'explosive', n:'Explosive Rounds',   d:'Bullets explode on impact',        cost:110, max:1, cat:'OFFENSE',  i:'\uD83D\uDCA3' },
-  { id:'armor',     n:'Armor Plating',      d:'+10 max health per level',         base:3, max:10, cat:'DEFENSE',  i:'\uD83D\uDEE1' },
-  { id:'shcap',     n:'Shield Capacity',    d:'+5 max shield per level',          base:3, max:10, cat:'DEFENSE',  i:'\uD83D\uDD35' },
-  { id:'shregen',   n:'Shield Regen',       d:'Faster shield recovery per lvl',   base:3, max:10, cat:'DEFENSE',  i:'\uD83D\uDCA0' },
-  { id:'hpregen',   n:'Health Regen',       d:'+0.03 HP/frame per level',         base:4, max:10, cat:'DEFENSE',  i:'\u2764'  },
-  { id:'lifesteal', n:'Lifesteal',          d:'+1% heal on damage dealt per lvl', base:4, max:10, cat:'DEFENSE',  i:'\uD83E\uDE78' },
-  { id:'speed',     n:'Speed Boost',        d:'+5% movement speed per level',     base:3, max:10, cat:'MOVEMENT', i:'\uD83D\uDCA8' },
-  { id:'jump',      n:'Boosted Jump',       d:'+5% jump power per level',         base:3, max:10, cat:'MOVEMENT', i:'\u2B06'  },
-  { id:'djump',     n:'Air Jets',           d:'Unlock double jump',               cost:55,  max:1, cat:'MOVEMENT', i:'\uD83D\uDE80' },
-  { id:'tjump',     n:'Triple Thrusters',   d:'Triple jump (req. Air Jets)',      cost:120, max:1, cat:'MOVEMENT', i:'\u2708',  req:'djump' },
-  { id:'magnet',    n:'Carrot Magnet',      d:'+25 magnet range per level',       base:3, max:10, cat:'UTILITY',  i:'\uD83E\uDDF2' },
-  { id:'fortune',   n:'Carrot Fortune',     d:'+1 bonus carrot per 2 levels',     base:3, max:10, cat:'UTILITY',  i:'\uD83E\uDD55' },
-  { id:'mega',      n:'MEGA CANNON + HOMING MISSILES', d:'Unlock boss-killing shots & 2 homing missiles per shot. REQUIRED!', cost:200, max:1, cat:'SPECIAL',  i:'\u26A1' },
+  { id:'damage',    n:'Bigger Shells',      d:'+25% bullet damage per level',     base:8,  max:10, cat:'OFFENSE',  i:'\uD83D\uDCA5' },
+  { id:'rate',      n:'Rapid Fire',         d:'+8% fire rate per level',          base:8,  max:10, cat:'OFFENSE',  i:'\uD83D\uDD25' },
+  { id:'bspeed',    n:'Bullet Velocity',    d:'+10% bullet speed per level',      base:5,  max:10, cat:'OFFENSE',  i:'\u2744'  },
+  { id:'pierce',    n:'Piercing Rounds',    d:'Bullets pierce +1 enemy per lvl',  base:9,  max:10, cat:'OFFENSE',  i:'\u27A1'  },
+  { id:'ricochet',  n:'Ricochet',           d:'Bullets bounce +1 time per lvl',   base:9,  max:10, cat:'OFFENSE',  i:'\uD83D\uDD04' },
+  { id:'crit',      n:'Critical Hits',      d:'+3% crit chance (\u00D73 damage)', base:9,  max:10, cat:'OFFENSE',  i:'\uD83C\uDFAF' },
+  { id:'multishot', n:'Multi-Shot',         d:'Fire 3 bullets in a spread',       cost:360, max:1, cat:'OFFENSE',  i:'\uD83C\uDF87' },
+  { id:'explosive', n:'Explosive Rounds',   d:'Bullets explode on impact',        cost:520, max:1, cat:'OFFENSE',  i:'\uD83D\uDCA3' },
+  { id:'armor',     n:'Armor Plating',      d:'+10 max health per level',         base:7,  max:10, cat:'DEFENSE',  i:'\uD83D\uDEE1' },
+  { id:'shcap',     n:'Shield Capacity',    d:'+5 max shield per level',          base:7,  max:10, cat:'DEFENSE',  i:'\uD83D\uDD35' },
+  { id:'shregen',   n:'Shield Regen',       d:'Faster shield recovery per lvl',   base:7,  max:10, cat:'DEFENSE',  i:'\uD83D\uDCA0' },
+  { id:'hpregen',   n:'Health Regen',       d:'+0.03 HP/frame per level',         base:9,  max:10, cat:'DEFENSE',  i:'\u2764'  },
+  { id:'lifesteal', n:'Lifesteal',          d:'+1% heal on damage dealt per lvl', base:9,  max:10, cat:'DEFENSE',  i:'\uD83E\uDE78' },
+  { id:'speed',     n:'Speed Boost',        d:'+5% movement speed per level',     base:7,  max:10, cat:'MOVEMENT', i:'\uD83D\uDCA8' },
+  { id:'jump',      n:'Boosted Jump',       d:'+5% jump power per level',         base:7,  max:10, cat:'MOVEMENT', i:'\u2B06'  },
+  { id:'djump',     n:'Air Jets',           d:'Unlock double jump',               cost:240, max:1, cat:'MOVEMENT', i:'\uD83D\uDE80' },
+  { id:'tjump',     n:'Triple Thrusters',   d:'Triple jump (req. Air Jets)',      cost:560, max:1, cat:'MOVEMENT', i:'\u2708',  req:'djump' },
+  { id:'magnet',    n:'Carrot Magnet',      d:'+25 magnet range per level',       base:7,  max:10, cat:'UTILITY',  i:'\uD83E\uDDF2' },
+  { id:'fortune',   n:'Carrot Fortune',     d:'+1 bonus carrot per 2 levels',     base:7,  max:10, cat:'UTILITY',  i:'\uD83E\uDD55' },
+  { id:'ammomax',   n:'Magazine',           d:'+20 max bullets per level',        base:5,  max:10, cat:'UTILITY',  i:'\uD83D\uDCE6' },
+  { id:'ammo',      n:'Bullets x25',        d:'Restock 25 bullets (consumable)',  cost:6,  max:999, cat:'UTILITY', i:'\uD83D\uDD2B', consumable:true },
+  { id:'mega',      n:'MEGA CANNON + HOMING MISSILES', d:'Unlock boss-killing shots & 2 homing missiles per shot. REQUIRED!', cost:900, max:1, cat:'SPECIAL',  i:'\u26A1' },
+];
+
+// ===== Secret-only upgrades (NOT sold in shop) =====
+// Found by exploring off-path platforms. Each secret grants exactly one pickup.
+const SECRET_UPG = [
+  // Forest secrets
+  { id:'overcharge',   n:'Overcharge',      max:3, cat:'SECRET', i:'\u2728' },
+  { id:'scavenger',    n:'Scavenger',       max:3, cat:'SECRET', i:'\uD83E\uDD8A' },
+  { id:'moonwind',     n:'Moonwind',        max:3, cat:'SECRET', i:'\uD83C\uDF18' },
+  { id:'cloverbolt',   n:'Cloverbolt',      max:3, cat:'SECRET', i:'\uD83C\uDF40' },
+  { id:'heartroot',    n:'Heartroot',       max:3, cat:'SECRET', i:'\uD83D\uDC9A' },
+  // Desert secrets
+  { id:'sunfury',      n:'Sunfury',         max:3, cat:'SECRET', i:'\u2600' },
+  { id:'goldrush',     n:'Goldrush',        max:3, cat:'SECRET', i:'\uD83C\uDF3B' },
+  { id:'mirageveil',   n:'Mirage Veil',     max:3, cat:'SECRET', i:'\uD83C\uDF00' },
+  { id:'stonehide',    n:'Stonehide',       max:3, cat:'SECRET', i:'\uD83E\uDEA8' },
+  { id:'sandstride',   n:'Sandstride',      max:1, cat:'SECRET', i:'\uD83D\uDC6A' },
+  // Inferno secrets
+  { id:'dreadpierce',  n:'Dreadpierce',     max:3, cat:'SECRET', i:'\uD83D\uDDE1' },
+  { id:'stormchain',   n:'Stormchain',      max:3, cat:'SECRET', i:'\u26A1' },
+  { id:'phoenixheart', n:'Phoenix Heart',   max:1, cat:'SECRET', i:'\uD83D\uDD25' },
+  { id:'apocalypse',   n:'Apocalypse',      max:3, cat:'SECRET', i:'\uD83C\uDF0B' },
+  { id:'volcanoroar',  n:'Volcano Roar',    max:1, cat:'SECRET', i:'\uD83E\uDD2C' },
 ];
 
 // ===== Level configs =====
@@ -147,7 +202,7 @@ const LEVELS = [
     sunColor: 0xfff2d5,
     wood: { top: 0x9c6a30, side: 0x7a4a20 },
     rock: 0x6a6a74,
-    boss: { type: 'tree', name: 'THE GREAT TREE', x: 7150, y: 140, w: 200, h: 360, hp: 800 },
+    boss: { type: 'tree', name: 'THE GREAT TREE', x: 7150, y: 140, w: 200, h: 360, hp: 1200 },
     enemyTint: { wolf: 0x3a2818, bat: 0x2a1a36 },
     enemyName: { wolf: 'WOLF', bat: 'BAT' },
   },
@@ -163,7 +218,7 @@ const LEVELS = [
     sunColor: 0xffe080,
     wood: { top: 0xb08a50, side: 0x8a6830 },
     rock: 0x9a7a58,
-    boss: { type: 'worm', name: 'THE SAND WORM', x: 7150, y: 200, w: 240, h: 300, hp: 1100 },
+    boss: { type: 'worm', name: 'THE SAND WORM', x: 7150, y: 200, w: 240, h: 300, hp: 3200 },
     enemyTint: { wolf: 0x6a4020, bat: 0x4a3020 },
     enemyName: { wolf: 'SCORPION', bat: 'VULTURE' },
   },
@@ -179,9 +234,25 @@ const LEVELS = [
     sunColor: 0xff9060,
     wood: { top: 0x5a2010, side: 0x3a1008 },
     rock: 0x3a2a2a,
-    boss: { type: 'dragon', name: 'THE LAVA DRAGON', x: 7150, y: 100, w: 240, h: 180, hp: 1400 },
+    boss: { type: 'dragon', name: 'THE LAVA DRAGON', x: 7150, y: 100, w: 240, h: 180, hp: 5200 },
     enemyTint: { wolf: 0x7a2010, bat: 0x9a2810 },
     enemyName: { wolf: 'FIRE IMP', bat: 'MAGMA BAT' },
+  },
+  {
+    id: 4, name: 'THE VOID THRONE',
+    sky: { top: 0x050011, mid: 0x1a0638, bot: 0x3a0a50 },
+    fogColor: 0x1a0838,
+    dirt: 0x150a20, grass: 0x2a1040, grassTuft: 0x80308a,
+    mountain: 0x1a0a2a,
+    treeTrunk: 0x0a0410, treeFoliage: 0x3a1050, treeStyle: 'dead',
+    shrub: 0x30104a,
+    hemiSky: 0x9040d0, hemiGround: 0x080014,
+    sunColor: 0xc080ff,
+    wood: { top: 0x402060, side: 0x200838 },
+    rock: 0x180820,
+    boss: { type: 'titan', name: 'VOIDLORD TYRANNOS', x: 7050, y: 120, w: 280, h: 360, hp: 8000 },
+    enemyTint: { wolf: 0x2a0a3a, bat: 0x3a0a50 },
+    enemyName: { wolf: 'VOID HOUND', bat: 'NIGHT STALKER' },
   },
 ];
 
@@ -206,6 +277,17 @@ const levelNEl = document.getElementById('levelN');
 const levelNameEl = document.getElementById('levelName');
 const bossNameEl = document.getElementById('bossName');
 const secretPopEl = document.getElementById('secretPop');
+const mapHudEl = document.getElementById('mapHud');
+const mapTopEl = document.getElementById('mapTop');
+const mapNameEl = document.getElementById('mapName');
+const mapStatusEl = document.getElementById('mapStatus');
+const levelHudEl = document.getElementById('levelHud');
+const stDmgEl = document.getElementById('stDmg');
+const stHpEl = document.getElementById('stHp');
+const stArmEl = document.getElementById('stArm');
+const stAmmoEl = document.getElementById('stAmmo');
+const stAmmoBox = stAmmoEl ? stAmmoEl.parentElement : null;
+const ownedUpEl = document.getElementById('ownedUp');
 
 // ===== Input =====
 const keys = {};
@@ -213,6 +295,13 @@ const mouse = { x: W/2, y: H/2, wx: 0, wy: 0, d: false };
 
 window.addEventListener('keydown', e => {
   keys[e.code] = true;
+  if (gameState === 'map') {
+    if (['ArrowLeft','KeyA'].includes(e.code)) { mapSelect(-1); e.preventDefault(); return; }
+    if (['ArrowRight','KeyD'].includes(e.code)) { mapSelect(1); e.preventDefault(); return; }
+    if (['Enter','Space','KeyE'].includes(e.code)) { mapEnter(); e.preventDefault(); return; }
+    if (e.code === 'KeyM') toggleMusic();
+    return;
+  }
   if (e.code === 'KeyE') toggleShopAtZone();
   if (e.code === 'KeyM') toggleMusic();
   if (['Space','ArrowUp','KeyW'].includes(e.code)) { doJump(); e.preventDefault(); }
@@ -260,10 +349,8 @@ const skyMat = new THREE.ShaderMaterial({
   vertexShader: 'varying vec3 vN; void main(){ vN = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
   fragmentShader: 'uniform vec3 top; uniform vec3 mid; uniform vec3 bot; varying vec3 vN; void main(){ float h = clamp(vN.y*0.5+0.5, 0.0, 1.0); vec3 c = mix(bot, mid, smoothstep(0.0, 0.55, h)); c = mix(c, top, smoothstep(0.55, 1.0, h)); gl_FragColor = vec4(c, 1.0);}'
 });
-{
-  const sky = new THREE.Mesh(new THREE.SphereGeometry(4500, 32, 16), skyMat);
-  scene.add(sky);
-}
+const skyMesh = new THREE.Mesh(new THREE.SphereGeometry(4500, 32, 16), skyMat);
+scene.add(skyMesh);
 
 // Lighting
 const hemi = new THREE.HemisphereLight(0xffeac4, 0x3a6b3a, 0.65);
@@ -289,8 +376,20 @@ let player, plats, carrots, enemies, enemySpawns, bullets, particles, floats, tr
 let secrets, bossProjectiles;
 let levelIdx = 0;
 let transitionT = 0;
+let mapNodeIdx = 0;
+let mapTargetX = 0;
+let beaten = [false, false, false];
+let finalBossDefeated = false;
+let inFinalBoss = false;
+const takenSecrets = new Set();
 const keepPlayer = { carryCarrots: 0, carryUp: null };
 function LVL() { return LEVELS[levelIdx]; }
+const MAP_NODES = [
+  { x: 1200, name: 'THE FOREST',         icon: 'tree'    },
+  { x: 3200, name: 'THE SCORCHED DUNES', icon: 'pyramid' },
+  { x: 5200, name: 'THE INFERNO',        icon: 'volcano' },
+  { x: 7000, name: 'THE VOID THRONE',    icon: 'throne', final: true },
+];
 
 // ===== Mesh containers =====
 const meshRoot = new THREE.Group();
@@ -325,51 +424,161 @@ function releaseParticleMesh(p) { p.used = false; p.mesh.visible = false; }
 
 // ===== Upgrade helpers =====
 function upLevel(id) { return player.up[id] || 0; }
-function upCost(u, lvl) { if (u.max === 1) return u.cost; return Math.ceil(u.base * (lvl + 1)); }
-function upMaxed(u) { return upLevel(u.id) >= u.max; }
+function upCost(u, lvl) { if (u.consumable) return u.cost; if (u.max === 1) return u.cost; return Math.round(u.base * Math.pow(1.6, lvl)); }
+function upMaxed(u) { if (u.consumable) return false; return upLevel(u.id) >= u.max; }
 function upLocked(u) { return u.req && !upLevel(u.req); }
-function upCanBuy(u) { if (upMaxed(u) || upLocked(u)) return false; return player.cr >= upCost(u, upLevel(u.id)); }
-function uniqueUpgrades() { let n = 0; for (const u of UPG) if (upLevel(u.id) > 0) n++; return n; }
+function upCanBuy(u) { if (upLocked(u)) return false; if (u.consumable) return player.cr >= u.cost && player.ammo < maxAmmo(); if (upMaxed(u)) return false; return player.cr >= upCost(u, upLevel(u.id)); }
+function uniqueUpgrades() { let n = 0; for (const u of UPG) if (!u.consumable && upLevel(u.id) > 0) n++; for (const u of SECRET_UPG) if (upLevel(u.id) > 0) n++; return n; }
+function findUpg(id) { return UPG.find(x => x.id === id) || SECRET_UPG.find(x => x.id === id); }
 
 // ===== Derived stats =====
-function maxHP()        { return 100 + upLevel('armor') * 10; }
+function maxHP()        { return 100 + upLevel('armor') * 10 + upLevel('heartroot') * 25; }
 function maxShield()    { return upLevel('shcap') * 5; }
-function maxSpeed()     { return 3.1 * (1 + upLevel('speed') * 0.05); }
+function maxSpeed()     { return 3.1 * (1 + upLevel('speed') * 0.05) * (1 + upLevel('moonwind') * 0.08); }
 function jumpPower()    { return 10.5 * (1 + upLevel('jump') * 0.05); }
-function maxJumps()     { return upLevel('tjump') ? 3 : (upLevel('djump') ? 2 : 1); }
-function fireCooldown() { const hasMega = upLevel('mega') > 0; const base = hasMega ? 46 : 26; return Math.max(5, Math.floor(base / (1 + upLevel('rate') * 0.08))); }
+function maxJumps()     { const base = upLevel('tjump') ? 3 : (upLevel('djump') ? 2 : 1); return base + upLevel('sandstride'); }
+function fireCooldown() { const hasMega = upLevel('mega') > 0; const base = hasMega ? 46 : 26; return Math.max(5, Math.floor(base / (1 + upLevel('rate') * 0.08 + upLevel('sunfury') * 0.10))); }
 function bulletSpd()    { return 10 * (1 + upLevel('bspeed') * 0.1); }
-function bulletDmg()    { let d = 5 * (1 + upLevel('damage') * 0.25); if (upLevel('mega')) d = Math.max(d * 1.4, 45); return d; }
-function critChance()   { return upLevel('crit') * 0.03; }
+function bulletDmg()    { let d = 5 * (1 + upLevel('damage') * 0.25) * (1 + upLevel('overcharge') * 0.20); if (upLevel('mega')) d = Math.max(d * 1.4, 45); return d; }
+function critChance()   { return upLevel('crit') * 0.03 + upLevel('cloverbolt') * 0.05; }
 function lifestealPct() { return upLevel('lifesteal') * 0.01; }
 function magnetRange()  { const l = upLevel('magnet'); return l ? 40 + l * 25 : 0; }
 function hpRegenPer()   { return upLevel('hpregen') * 0.03; }
 function shieldRegenPer() { return 0.15 + upLevel('shregen') * 0.05; }
-function fortuneBonus() { return Math.floor(upLevel('fortune') / 2); }
+function fortuneBonus() { return Math.floor(upLevel('fortune') / 2) + upLevel('goldrush') * 2; }
+function damageReduction() { return Math.min(0.6, upLevel('stonehide') * 0.10); }
+function invulnBonus()  { return upLevel('mirageveil') * 30; }
+function explosionMult() { return 1 + upLevel('apocalypse') * 0.25; }
+function maxAmmo()      { return 40 + upLevel('ammomax') * 20; }
+function allShopMaxed() {
+  for (const u of UPG) {
+    if (u.consumable) continue;
+    if (upLevel(u.id) < u.max) return false;
+  }
+  return true;
+}
+function allSecretsCollected() { return takenSecrets.size >= 15; }
+function finalBossUnlocked() { return beaten[0] && beaten[1] && beaten[2] && allShopMaxed() && allSecretsCollected(); }
 
 // ===== Init =====
 function init() {
   levelIdx = 0;
+  mapNodeIdx = 0;
+  beaten = [false, false, false];
+  finalBossDefeated = false;
+  inFinalBoss = false;
+  takenSecrets.clear();
   player = {
     x: 120, y: 430, w: 56, h: 30,
     vx: 0, vy: 0, og: false, ju: 0,
     f: 1, ta: 0,
     sc: 0, inv: 0, hf: 0,
     hp: 100, sh: 0, srt: 0,
-    cr: 0, up: {}, dead: false,
+    cr: 0, up: {}, dead: false, revived: false,
+    ammo: 40,
   };
-  loadLevel(0);
+  loadMap();
   overEl.style.display = 'none';
   winEl.style.display = 'none';
-  showMessage('Collect carrots and buy upgrades at the SHOP!  [M] for music', 240);
+  showMessage('Choose a world to invade. Collect carrots. Topple every boss.', 240);
 }
+
+function loadMap() {
+  gameState = 'map';
+  // Neutralize player so rendering is clean but safe
+  player.dead = false;
+  player.inv = 0;
+  player.vx = 0; player.vy = 0;
+  player.hp = Math.max(player.hp, 100);
+  // Clear gameplay state
+  plats = [];
+  carrots = [];
+  enemies = [];
+  enemySpawns = [];
+  bullets = [];
+  particles = [];
+  floats = [];
+  explosions = [];
+  bossProjectiles = [];
+  secrets = [];
+  tree = null;
+  shopZone = { x: -9999, y: 0, w: 0, h: 0 };
+  shopOpen = false;
+  nearShop = false;
+  transitionT = 0;
+  t = 0;
+  shake = 0;
+  msgTimer = 0;
+  // Place tank on current node
+  const n = MAP_NODES[mapNodeIdx];
+  player.x = n.x - player.w/2;
+  player.y = 470;
+  mapTargetX = player.x;
+  cam2D = { x: Math.max(0, Math.min(WW - W, player.x + player.w/2 - W/2)), y: 0 };
+  // Apply neutral biome and build map visuals
+  applyMapBiome();
+  clearScene3D();
+  buildMapScene3D();
+  rebuildTank();
+  // UI
+  treeHud.style.display = 'none';
+  levelHudEl.style.display = 'none';
+  mapHudEl.style.display = 'block';
+  mapTopEl.style.display = 'block';
+  promptEl.style.display = 'none';
+  if (ownedUpEl) ownedUpEl.style.display = 'none';
+  hideShop();
+  updateMapHUD();
+  updateHUD();
+}
+
+function updateMapHUD() {
+  const n = MAP_NODES[mapNodeIdx];
+  mapNameEl.textContent = (mapNodeIdx + 1) + '. ' + n.name;
+  if (n.final) {
+    if (finalBossDefeated) mapStatusEl.textContent = 'TYRANT SLAIN';
+    else if (finalBossUnlocked()) mapStatusEl.textContent = 'UNLOCKED \u2014 ENTER AT YOUR PERIL';
+    else {
+      const missing = [];
+      if (!beaten.every(b => b)) missing.push('ALL BOSSES');
+      if (!allSecretsCollected()) missing.push(takenSecrets.size + '/15 SECRETS');
+      if (!allShopMaxed()) missing.push('MAX UPGRADES');
+      mapStatusEl.textContent = 'LOCKED \u2014 NEED: ' + missing.join(', ');
+    }
+  } else {
+    mapStatusEl.textContent = beaten[mapNodeIdx] ? 'CLEARED' : '';
+  }
+}
+
+function returnToMap() {
+  // Preserve upgrades / carrots between map returns
+  overEl.style.display = 'none';
+  winEl.style.display = 'none';
+  loadMap();
+}
+window.returnToMap = returnToMap;
+
+function handleDeathRestart() {
+  overEl.style.display = 'none';
+  winEl.style.display = 'none';
+  if (inFinalBoss) {
+    // Final boss is retryable — reload it without wiping progress.
+    loadLevel(3);
+  } else {
+    init();
+  }
+}
+window.handleDeathRestart = handleDeathRestart;
 
 function loadLevel(idx) {
   levelIdx = idx;
+  inFinalBoss = (idx === 3);
   const L = LVL();
   player.x = 120; player.y = 430; player.vx = 0; player.vy = 0; player.dead = false; player.inv = 60;
-  player.hp = Math.min(maxHP(), Math.max(player.hp, maxHP() * 0.6));
+  player.hp = maxHP();
   player.sh = maxShield();
+  player.ammo = maxAmmo();
+  player.revived = false;
   bullets = [];
   particles = [];
   floats = [];
@@ -395,6 +604,11 @@ function loadLevel(idx) {
   transitionT = 0;
   hideShop();
   treeHud.style.display = 'none';
+  mapHudEl.style.display = 'none';
+  mapTopEl.style.display = 'none';
+  levelHudEl.style.display = 'block';
+  if (ownedUpEl) ownedUpEl.style.display = 'flex';
+  lastOwnedSig = '';
   setLevelHUD();
   updateHUD();
   buildScene3D();
@@ -484,7 +698,17 @@ function buildCarrots(idx) {
 }
 
 function buildSpawns(idx) {
-  return [
+  // Level 4 (final boss) — sparse elite guardians near the throne.
+  if (idx === 3) return [
+    { x:1800, y:450, t:'brute' }, { x:2700, y:450, t:'brute' }, { x:3600, y:450, t:'brute' },
+    { x:4500, y:450, t:'brute' }, { x:5400, y:450, t:'brute' }, { x:6200, y:450, t:'brute' },
+    { x:2000, y:200, t:'imp' }, { x:3200, y:180, t:'imp' }, { x:4200, y:150, t:'imp' },
+    { x:5200, y:220, t:'imp' }, { x:6000, y:190, t:'imp' }, { x:6900, y:180, t:'imp' },
+    { x:2400, y:150, t:'bat' }, { x:3500, y:130, t:'bat' }, { x:4600, y:150, t:'bat' },
+    { x:5600, y:140, t:'bat' }, { x:6500, y:160, t:'bat' },
+  ];
+  // Level 1 — original forest (kept as-is).
+  if (idx === 0) return [
     { x:1770, y:470, t:'wolf' }, { x:1980, y:470, t:'wolf' }, { x:2180, y:470, t:'wolf' },
     { x:2800, y:470, t:'wolf' }, { x:3000, y:470, t:'wolf' }, { x:3200, y:470, t:'wolf' },
     { x:3600, y:470, t:'wolf' }, { x:3820, y:470, t:'wolf' }, { x:4040, y:470, t:'wolf' },
@@ -495,61 +719,120 @@ function buildSpawns(idx) {
     { x:4200, y:180, t:'bat' }, { x:4400, y:130, t:'bat' }, { x:5800, y:200, t:'bat' },
     { x:6300, y:220, t:'bat' }, { x:6900, y:200, t:'bat' }, { x:7150, y:180, t:'bat' },
   ];
+  // Level 2 — The Scorched Dunes. Dense ground scorpions + airborne vultures + heavy BRUTES.
+  if (idx === 1) return [
+    { x:1700, y:470, t:'wolf' }, { x:1850, y:470, t:'wolf' }, { x:2000, y:470, t:'wolf' }, { x:2150, y:470, t:'wolf' }, { x:2300, y:470, t:'wolf' },
+    { x:2750, y:470, t:'wolf' }, { x:2900, y:470, t:'wolf' }, { x:3050, y:470, t:'wolf' }, { x:3200, y:470, t:'wolf' }, { x:3350, y:470, t:'wolf' },
+    { x:3600, y:470, t:'wolf' }, { x:3750, y:470, t:'wolf' }, { x:3900, y:470, t:'wolf' }, { x:4050, y:470, t:'wolf' }, { x:4200, y:470, t:'wolf' }, { x:4350, y:470, t:'wolf' }, { x:4500, y:470, t:'wolf' },
+    { x:4880, y:400, t:'wolf' }, { x:5060, y:340, t:'wolf' },
+    { x:5400, y:470, t:'wolf' }, { x:5560, y:470, t:'wolf' }, { x:5720, y:470, t:'wolf' }, { x:5880, y:470, t:'wolf' },
+    { x:6100, y:470, t:'wolf' }, { x:6250, y:470, t:'wolf' }, { x:6400, y:470, t:'wolf' }, { x:6550, y:470, t:'wolf' },
+    { x:6820, y:470, t:'wolf' }, { x:6970, y:470, t:'wolf' }, { x:7120, y:470, t:'wolf' }, { x:7270, y:470, t:'wolf' },
+    // Vultures — more of them, larger range
+    { x:2400, y:150, t:'bat' }, { x:3100, y:170, t:'bat' }, { x:3800, y:150, t:'bat' },
+    { x:4200, y:180, t:'bat' }, { x:4400, y:130, t:'bat' }, { x:5000, y:180, t:'bat' },
+    { x:5600, y:160, t:'bat' }, { x:5900, y:210, t:'bat' }, { x:6300, y:220, t:'bat' },
+    { x:6700, y:180, t:'bat' }, { x:7000, y:150, t:'bat' }, { x:7250, y:170, t:'bat' },
+    // BRUTES — slow walking tanks (more of them)
+    { x:2200, y:450, t:'brute' }, { x:2500, y:450, t:'brute' }, { x:3000, y:450, t:'brute' },
+    { x:3500, y:450, t:'brute' }, { x:3900, y:450, t:'brute' }, { x:4400, y:450, t:'brute' },
+    { x:5200, y:450, t:'brute' }, { x:5700, y:450, t:'brute' }, { x:6200, y:450, t:'brute' }, { x:6650, y:450, t:'brute' }, { x:7200, y:450, t:'brute' },
+    // IMPS — desert also has fireball spitters on mesas now
+    { x:2300, y:260, t:'imp' }, { x:3400, y:220, t:'imp' }, { x:4200, y:180, t:'imp' }, { x:5500, y:240, t:'imp' }, { x:6900, y:200, t:'imp' },
+  ];
+  // Level 3 — The Inferno. Even denser, adds IMPS that shoot fireballs + more BRUTES.
+  return [
+    { x:1700, y:470, t:'wolf' }, { x:1830, y:470, t:'wolf' }, { x:1960, y:470, t:'wolf' }, { x:2090, y:470, t:'wolf' }, { x:2220, y:470, t:'wolf' }, { x:2350, y:470, t:'wolf' },
+    { x:2730, y:470, t:'wolf' }, { x:2860, y:470, t:'wolf' }, { x:2990, y:470, t:'wolf' }, { x:3120, y:470, t:'wolf' }, { x:3250, y:470, t:'wolf' },
+    { x:3550, y:470, t:'wolf' }, { x:3680, y:470, t:'wolf' }, { x:3810, y:470, t:'wolf' }, { x:3940, y:470, t:'wolf' }, { x:4070, y:470, t:'wolf' }, { x:4200, y:470, t:'wolf' }, { x:4330, y:470, t:'wolf' }, { x:4460, y:470, t:'wolf' }, { x:4590, y:470, t:'wolf' },
+    { x:4860, y:400, t:'wolf' }, { x:5040, y:340, t:'wolf' },
+    { x:5380, y:470, t:'wolf' }, { x:5510, y:470, t:'wolf' }, { x:5640, y:470, t:'wolf' }, { x:5770, y:470, t:'wolf' }, { x:5900, y:470, t:'wolf' },
+    { x:6080, y:470, t:'wolf' }, { x:6210, y:470, t:'wolf' }, { x:6340, y:470, t:'wolf' }, { x:6470, y:470, t:'wolf' }, { x:6600, y:470, t:'wolf' },
+    { x:6800, y:470, t:'wolf' }, { x:6930, y:470, t:'wolf' }, { x:7060, y:470, t:'wolf' }, { x:7190, y:470, t:'wolf' }, { x:7320, y:470, t:'wolf' },
+    // Magma Bats — flying swarm everywhere
+    { x:1900, y:170, t:'bat' }, { x:2300, y:140, t:'bat' }, { x:2800, y:190, t:'bat' },
+    { x:3400, y:160, t:'bat' }, { x:3900, y:150, t:'bat' }, { x:4250, y:180, t:'bat' }, { x:4450, y:120, t:'bat' },
+    { x:4900, y:180, t:'bat' }, { x:5500, y:160, t:'bat' }, { x:5850, y:200, t:'bat' },
+    { x:6200, y:220, t:'bat' }, { x:6600, y:180, t:'bat' }, { x:7000, y:150, t:'bat' }, { x:7250, y:170, t:'bat' },
+    // BRUTES — swarming the inferno
+    { x:1800, y:450, t:'brute' }, { x:2200, y:450, t:'brute' }, { x:2600, y:450, t:'brute' },
+    { x:3000, y:450, t:'brute' }, { x:3300, y:450, t:'brute' }, { x:3700, y:450, t:'brute' },
+    { x:4100, y:450, t:'brute' }, { x:4400, y:450, t:'brute' }, { x:4800, y:450, t:'brute' },
+    { x:5200, y:450, t:'brute' }, { x:5500, y:450, t:'brute' }, { x:5900, y:450, t:'brute' },
+    { x:6300, y:450, t:'brute' }, { x:6700, y:450, t:'brute' }, { x:7100, y:450, t:'brute' },
+    // IMPS — lots of spitters on platforms
+    { x:2000, y:270, t:'imp' }, { x:2400, y:250, t:'imp' }, { x:2800, y:220, t:'imp' }, { x:3280, y:200, t:'imp' },
+    { x:3700, y:180, t:'imp' }, { x:4200, y:160, t:'imp' }, { x:4500, y:130, t:'imp' }, { x:5000, y:220, t:'imp' },
+    { x:5400, y:260, t:'imp' }, { x:5640, y:280, t:'imp' }, { x:6100, y:230, t:'imp' }, { x:6440, y:200, t:'imp' },
+    { x:6800, y:180, t:'imp' }, { x:7240, y:260, t:'imp' },
+  ];
 }
 
 function spawnE(sp) {
-  const difficulty = 1 + levelIdx * 0.35;
+  const difficulty = 1 + levelIdx * 0.95;
   const b = { sx: sp.x, sy: sp.y, x: sp.x, y: sp.y, vx: 0, vy: 0, t: sp.t, hf: 0, dead: false, respawn: 0, phaseT: 90, mesh: null };
   if (sp.t === 'wolf') return Object.assign(b, {
     w: 42, h: 28,
     mh: Math.round(30 * difficulty), hp: Math.round(30 * difficulty),
-    dmg: Math.round(14 * difficulty), sp: 1.8 + levelIdx * 0.2,
+    dmg: Math.round(14 * difficulty), sp: 1.8 + levelIdx * 0.3,
     cr: 3 + levelIdx, f: -1, og: false,
   });
   if (sp.t === 'bat')  return Object.assign(b, {
     w: 32, h: 22,
     mh: Math.round(15 * difficulty), hp: Math.round(15 * difficulty),
-    dmg: Math.round(8 * difficulty), sp: 2.2 + levelIdx * 0.25,
+    dmg: Math.round(8 * difficulty), sp: 2.2 + levelIdx * 0.35,
     cr: 2 + levelIdx,
+    ay: sp.y, os: Math.random() * Math.PI * 2, fly: true, f: -1,
+  });
+  if (sp.t === 'brute') return Object.assign(b, {
+    w: 60, h: 48,
+    mh: Math.round(90 * difficulty), hp: Math.round(90 * difficulty),
+    dmg: Math.round(22 * difficulty), sp: 1.1 + levelIdx * 0.15,
+    cr: 6 + levelIdx * 2, f: -1, og: false,
+  });
+  if (sp.t === 'imp') return Object.assign(b, {
+    w: 34, h: 30,
+    mh: Math.round(22 * difficulty), hp: Math.round(22 * difficulty),
+    dmg: Math.round(10 * difficulty), sp: 1.6,
+    cr: 4 + levelIdx, atkT: 60 + Math.floor(Math.random() * 40),
     ay: sp.y, os: Math.random() * Math.PI * 2, fly: true, f: -1,
   });
   return b;
 }
 
-// Hidden secret pickups: found off the beaten path, grant free upgrade level
+// Hidden secret pickups: found off the beaten path, grant unique shop-exclusive upgrades.
+// Each secret grants one level of a SECRET_UPG and VANISHES permanently after collection.
 function buildSecrets(idx) {
-  // Each secret grants one level in the given upgrade (for non-binary) or unlocks it (for binary).
-  // Level 1: tucked away on the forest path
-  // Level 2: desert ridges + plateau
-  // Level 3: volcano peaks
   const BY_LVL = [
     // Level 1 — forest
     [
-      { x:  720, y: 270, up: 'damage',    label: 'BIGGER SHELLS +1' },       // top of stair 680/320
-      { x: 2350, y: 140, up: 'speed',     label: 'SPEED BOOST +1' },          // top of tall stack 2310/190
-      { x: 3260, y: 180, up: 'rate',      label: 'RAPID FIRE +1' },           // 3220/230 high plank
-      { x: 4425, y:  40, up: 'multishot', label: 'MULTI-SHOT UNLOCKED' },     // very top 4370/120 then 4425/90 pile
-      { x: 7250, y: 210, up: 'crit',      label: 'CRIT +1' },                 // 7180/260 last platform
+      { x:  720, y: 270, up: 'overcharge', label: 'OVERCHARGE +20% DMG' },
+      { x: 2350, y: 140, up: 'moonwind',   label: 'MOONWIND +8% SPEED' },
+      { x: 3260, y: 180, up: 'scavenger',  label: 'SCAVENGER +1 CARROT/KILL' },
+      { x: 4425, y:  40, up: 'cloverbolt', label: 'CLOVERBOLT +5% CRIT' },
+      { x: 7250, y: 210, up: 'heartroot',  label: 'HEARTROOT +25 MAX HP' },
     ],
     // Level 2 — desert
     [
-      { x:  540, y: 350, up: 'bspeed',    label: 'BULLET VELOCITY +1' },
-      { x: 2150, y: 200, up: 'pierce',    label: 'PIERCING ROUNDS +1' },
-      { x: 3280, y: 160, up: 'armor',     label: 'ARMOR PLATING +1' },
-      { x: 4425, y:  50, up: 'djump',     label: 'AIR JETS UNLOCKED' },
-      { x: 5810, y: 200, up: 'magnet',    label: 'CARROT MAGNET +1' },
+      { x:  540, y: 350, up: 'sunfury',    label: 'SUNFURY +10% FIRE RATE' },
+      { x: 2150, y: 200, up: 'goldrush',   label: 'GOLDRUSH +2 CARROTS/PICKUP' },
+      { x: 3280, y: 160, up: 'mirageveil', label: 'MIRAGE VEIL +I-FRAMES' },
+      { x: 4425, y:  50, up: 'sandstride', label: 'SANDSTRIDE +1 JUMP' },
+      { x: 5810, y: 200, up: 'stonehide',  label: 'STONEHIDE -10% DAMAGE' },
     ],
     // Level 3 — volcano
     [
-      { x:  780, y: 270, up: 'hpregen',   label: 'HEALTH REGEN +1' },
-      { x: 2350, y: 140, up: 'ricochet',  label: 'RICOCHET +1' },
-      { x: 4425, y:  50, up: 'tjump',     label: 'TRIPLE THRUSTERS UNLOCKED' },
-      { x: 5760, y: 210, up: 'shcap',     label: 'SHIELD CAPACITY +1' },
-      { x: 7250, y: 210, up: 'explosive', label: 'EXPLOSIVE ROUNDS UNLOCKED' },
+      { x:  780, y: 270, up: 'dreadpierce', label: 'DREADPIERCE +2 PIERCE' },
+      { x: 2350, y: 140, up: 'stormchain',  label: 'STORMCHAIN +2 RICOCHET' },
+      { x: 4425, y:  50, up: 'phoenixheart', label: 'PHOENIX HEART — REVIVE ONCE' },
+      { x: 5760, y: 210, up: 'apocalypse',   label: 'APOCALYPSE +25% EXPLOSIONS' },
+      { x: 7250, y: 210, up: 'volcanoroar',  label: 'VOLCANO ROAR — JUMP SHOCKWAVE' },
     ],
   ];
   const list = BY_LVL[idx] || [];
-  return list.map(s => ({ x: s.x, y: s.y, up: s.up, label: s.label, taken: false, t: Math.random() * Math.PI * 2, mesh: null }));
+  return list
+    .filter(s => !takenSecrets.has(idx + ':' + s.up))
+    .map(s => ({ x: s.x, y: s.y, up: s.up, label: s.label, taken: false, t: Math.random() * Math.PI * 2, mesh: null }));
 }
 
 // ===== Gameplay Logic (game rules preserved from v2) =====
@@ -577,10 +860,17 @@ function doJump() {
 function tryShoot() {
   if (gameState !== 'playing' || shopOpen || player.dead) return;
   if (player.sc > 0) return;
+  if (player.ammo <= 0) {
+    player.sc = 12;
+    playSFX('empty');
+    showMessage('OUT OF AMMO! Buy Bullets at the shop.', 90);
+    return;
+  }
   startMusicIfReady();
   const hasMega  = upLevel('mega') > 0;
   const hasMulti = upLevel('multishot') > 0;
   player.sc = fireCooldown();
+  player.ammo = Math.max(0, player.ammo - 1);
 
   const cx = player.x + player.w/2;
   const cy = player.y + player.h/2 - 10;
@@ -626,8 +916,8 @@ function spawnBullet(x, y, ang, mega, homing) {
     spd: baseSpd,
     life: homing ? 180 : 80,
     dmg,
-    pierceLeft: upLevel('pierce'),
-    bouncesLeft: upLevel('ricochet'),
+    pierceLeft: upLevel('pierce') + upLevel('dreadpierce') * 2,
+    bouncesLeft: upLevel('ricochet') + upLevel('stormchain') * 2,
     exploding: upLevel('explosive') > 0,
     mega, homing,
     crit: isCrit,
@@ -639,6 +929,7 @@ function spawnBullet(x, y, ang, mega, homing) {
 
 function takeDamage(amount) {
   if (player.inv > 0 || player.dead) return;
+  amount *= (1 - damageReduction());
   if (player.sh > 0) {
     const ab = Math.min(player.sh, amount);
     player.sh -= ab;
@@ -646,13 +937,41 @@ function takeDamage(amount) {
     player.srt = 120;
   }
   if (amount > 0) { player.hp -= amount; player.hf = 10; }
-  player.inv = 35;
+  player.inv = 35 + invulnBonus();
   shake = Math.max(shake, 4);
   playSFX('hit');
   if (player.hp <= 0) {
+    if (upLevel('phoenixheart') && !player.revived) {
+      player.revived = true;
+      player.hp = Math.round(maxHP() * 0.5);
+      player.sh = maxShield();
+      player.inv = 120;
+      showMessage('PHOENIX HEART REVIVED YOU!', 200);
+      for (let i = 0; i < 60; i++) {
+        const a = Math.random() * Math.PI * 2;
+        particles.push({
+          x: player.x + player.w/2, y: player.y + player.h/2,
+          vx: Math.cos(a) * (3 + Math.random() * 5), vy: Math.sin(a) * (3 + Math.random() * 5),
+          life: 50 + Math.random() * 30,
+          color: ['#ff5020','#ffaa30','#ffe070','#ffffff'][Math.floor(Math.random() * 4)],
+          size: 3 + Math.random() * 3, g: 0, mesh: null,
+        });
+      }
+      playSFX('secret');
+      return;
+    }
     player.hp = 0;
     player.dead = true;
     gameState = 'gameover';
+    const overMsg = document.getElementById('overMsg');
+    const overBtn = document.getElementById('overBtn');
+    if (inFinalBoss) {
+      if (overMsg) overMsg.textContent = 'The final tyrant still stands. Try again.';
+      if (overBtn) overBtn.textContent = 'RETRY FINAL BOSS';
+    } else {
+      if (overMsg) overMsg.textContent = 'Your tank was destroyed. All progress has been wiped.';
+      if (overBtn) overBtn.textContent = 'START OVER';
+    }
     overEl.style.display = 'flex';
     for (let i = 0; i < 50; i++) {
       particles.push({
@@ -669,12 +988,14 @@ function takeDamage(amount) {
 function collectSecret(s) {
   if (s.taken) return;
   s.taken = true;
+  takenSecrets.add(levelIdx + ':' + s.up);
   if (s.mesh) { dynamicRoot.remove(s.mesh); disposeDeep(s.mesh); s.mesh = null; }
-  const u = UPG.find(x => x.id === s.up);
+  const u = findUpg(s.up);
   if (u) {
     const lvl = upLevel(s.up);
     if (lvl < u.max) {
       player.up[s.up] = lvl + 1;
+      if (s.up === 'heartroot') player.hp = Math.min(maxHP(), player.hp + 25);
       if (s.up === 'armor') player.hp = Math.min(maxHP(), player.hp + 10);
       if (s.up === 'shcap') player.sh = maxShield();
       rebuildTank();
@@ -715,7 +1036,8 @@ function killEnemy(e) {
   e.dead = true;
   e.respawn = 240;
   if (e.mesh) e.mesh.visible = false;
-  for (let k = 0; k < e.cr; k++) {
+  const drops = e.cr + upLevel('scavenger');
+  for (let k = 0; k < drops; k++) {
     carrots.push({
       x: e.x + e.w/2 + (Math.random()-0.5)*20, y: e.y, g:false,
       vx: (Math.random()-0.5)*3, vy: -Math.random()*3 - 2,
@@ -728,6 +1050,7 @@ function killEnemy(e) {
 }
 
 function explode(x, y, damage, radius, mega) {
+  radius *= explosionMult();
   explosions.push({ x, y, r: 2, mr: radius, life: 25, dmg: damage, mesh: null });
   for (let i = 0; i < 30; i++) {
     particles.push({
@@ -777,15 +1100,21 @@ function damageTree(dmg) {
         size: 4 + Math.random()*3, g: 0.15, mesh: null,
       });
     }
-    if (levelIdx + 1 < LEVELS.length) {
-      transitionT = 140;
-      showMessage(LVL().boss.name + ' DEFEATED! Entering ' + LEVELS[levelIdx + 1].name + '...', 200);
-    } else {
+    if (inFinalBoss) {
+      finalBossDefeated = true;
       setTimeout(() => {
         gameState = 'won';
         winEl.style.display = 'flex';
         fcvEl.textContent = player.cr;
-      }, 2200);
+        const winTitle = winEl.querySelector('h1');
+        if (winTitle) winTitle.textContent = 'TRUE VICTORY!';
+        const winSub = winEl.querySelector('div');
+        if (winSub) winSub.textContent = 'You have slain the Voidlord Tyrannos. Peace returns to the realm.';
+      }, 2400);
+    } else {
+      beaten[levelIdx] = true;
+      transitionT = 140;
+      showMessage(LVL().boss.name + ' DEFEATED! Returning to world map...', 200);
     }
   }
 }
@@ -796,6 +1125,7 @@ function spawnFloat(x, y, text, color) {
 
 // ===== Updates =====
 function update() {
+  if (gameState === 'map') { t++; updateMap(); updateMessage(); return; }
   if (gameState !== 'playing') return;
   t++;
   if (transitionT > 0) {
@@ -804,7 +1134,7 @@ function update() {
     updateFloats();
     updateCamera();
     updateMessage();
-    if (transitionT === 0) loadLevel(levelIdx + 1);
+    if (transitionT === 0) { mapNodeIdx = Math.min(MAP_NODES.length - 1, levelIdx + 1); loadMap(); }
     if (shake > 0.1) shake *= 0.85; else shake = 0;
     return;
   }
@@ -911,6 +1241,7 @@ function resolveX(p) {
   }
 }
 function resolveY(p) {
+  const wasAir = !p.og;
   p.og = false;
   for (const pl of plats) {
     if (rectHit(p, pl)) {
@@ -918,6 +1249,30 @@ function resolveY(p) {
       else if (p.vy < 0) p.y = pl.y + pl.h;
       p.vy = 0;
     }
+  }
+  if (p === player && wasAir && p.og && upLevel('volcanoroar')) volcanoShockwave();
+}
+
+function volcanoShockwave() {
+  const cx = player.x + player.w/2, cy = player.y + player.h;
+  const radius = 140;
+  shake = Math.max(shake, 6);
+  playSFX('explode');
+  for (const e of enemies) {
+    if (e.dead || e.phaseT > 0) continue;
+    const d = Math.hypot(e.x + e.w/2 - cx, e.y + e.h/2 - cy);
+    if (d < radius) { e.hp -= 40; e.hf = 8; if (e.hp <= 0) killEnemy(e); }
+  }
+  for (let i = 0; i < 30; i++) {
+    const a = Math.random() * Math.PI * 2;
+    particles.push({
+      x: cx + Math.cos(a) * 10, y: cy,
+      vx: Math.cos(a) * (3 + Math.random() * 4),
+      vy: -Math.random() * 3,
+      life: 25 + Math.random() * 15,
+      color: ['#ff6020','#ffa040','#ffee60'][Math.floor(Math.random() * 3)],
+      size: 2 + Math.random() * 3, g: 0.15, mesh: null,
+    });
   }
 }
 function rectHit(a, b) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
@@ -1116,6 +1471,48 @@ function updateEnemies() {
         e.vx = -Math.sign(dx) * 3;
         e.vy = -2;
       }
+    } else if (e.t === 'brute') {
+      if (dist < 520 && !p.dead) {
+        const dir = Math.sign(dx);
+        e.vx += dir * 0.10;
+        e.vx = Math.max(-e.sp, Math.min(e.sp, e.vx));
+        e.f = dir;
+      } else e.vx *= 0.92;
+      e.vy += G;
+      if (e.vy > 14) e.vy = 14;
+      e.x += e.vx; resolveEnemyX(e);
+      e.y += e.vy; resolveEnemyY(e);
+      if (!p.dead && rectHit(e, p)) {
+        takeDamage(e.dmg);
+        p.vx = (p.x + p.w/2 < e.x + e.w/2 ? -8 : 8);
+        p.vy = -7;
+      }
+      if (e.y > H + 200) killEnemy(e);
+    } else if (e.t === 'imp') {
+      e.os += 0.05;
+      // Hover near spawn, drift toward player
+      const tx = e.sx + Math.sin(e.os) * 40;
+      const ty = e.ay + Math.cos(e.os * 0.7) * 22;
+      e.vx += (tx - e.x) * 0.003;
+      e.vy += (ty - e.y) * 0.003;
+      e.vx = Math.max(-e.sp, Math.min(e.sp, e.vx));
+      e.vy = Math.max(-e.sp, Math.min(e.sp, e.vy));
+      e.vx *= 0.92; e.vy *= 0.92;
+      e.x += e.vx; e.y += e.vy;
+      e.f = dx < 0 ? -1 : 1;
+      // Periodically spit fireballs
+      e.atkT--;
+      if (e.atkT <= 0 && dist < 560 && !p.dead) {
+        const sx = e.x + e.w/2, sy = e.y + e.h/2;
+        const ang = Math.atan2((p.y + p.h/2) - sy, (p.x + p.w/2) - sx);
+        spawnBossProjectile(sx, sy, Math.cos(ang) * 5.5, Math.sin(ang) * 5.5, Math.round(9 + levelIdx * 3), '#ff5020', 130, 0.04);
+        e.atkT = 80 + Math.floor(Math.random() * 50);
+      }
+      if (!p.dead && rectHit(e, p)) {
+        takeDamage(e.dmg);
+        e.vx = -Math.sign(dx) * 4;
+        e.vy = -3;
+      }
     }
   }
 }
@@ -1179,46 +1576,139 @@ function updateTree() {
   const dx = pcx - bcx, dy = pcy - bcy;
   const dist = Math.hypot(dx, dy);
   if (dist > 1300) return;
-  tree.atkT--;
-  if (tree.type === 'worm') {
+  const enraged = tree.hp / tree.mhp < 0.4;
+  tree.atkT -= enraged ? 2 : 1;
+  if (tree.type === 'tree') {
+    // Drop spiky acorns from canopy at player location, occasional thorn spread.
+    if (tree.atkT <= 0) {
+      const variant = Math.random();
+      const sx = tree.x + tree.w/2;
+      const sy = tree.y + 40;
+      if (variant < 0.55) {
+        // Falling acorn bomb
+        const tx = pcx + (Math.random() - 0.5) * 80;
+        const vx = Math.max(-13, Math.min(-1.5, (tx - sx) / 55));
+        spawnBossProjectile(sx, sy, vx, -6, 18, '#6a3a18', 220, 0.35);
+        playSFX('bigBoom');
+        if (Math.random() < 0.5) {
+          setTimeout(() => {
+            if (!tree.dead) spawnBossProjectile(sx, sy, vx * 1.1, -7, 18, '#6a3a18', 220, 0.35);
+          }, 260);
+        }
+      } else {
+        // Thorn spray — fan of 5 leaves toward player
+        const ang = Math.atan2(pcy - sy, pcx - sx);
+        for (let k = -2; k <= 2; k++) {
+          const a = ang + k * 0.15;
+          const sp = 5 + Math.random();
+          spawnBossProjectile(sx, sy, Math.cos(a) * sp, Math.sin(a) * sp, 12, '#3d8a3a', 180, 0.04);
+        }
+        playSFX('shoot');
+      }
+      tree.atkT = 70 + Math.floor(Math.random() * 50);
+    }
+  } else if (tree.type === 'worm') {
     // Emerge bob: semi-periodic
     tree.emergeT = (tree.emergeT || 0) + 1;
     if (tree.atkT <= 0) {
-      // Lob a sand projectile at player in an arc
+      // Primary lob + triple barrage
       const sx = tree.x + tree.w/2;
       const sy = tree.y + 40;
-      const tgt = { x: pcx, y: pcy - 20 };
-      const vx = Math.max(-14, Math.min(-2, (tgt.x - sx) / 48));
-      const vy = -8;
-      spawnBossProjectile(sx, sy, vx, vy, 14 + levelIdx * 2, '#d4a060', 200, 0.25);
+      const vx0 = Math.max(-14, Math.min(-2, (pcx - sx) / 48));
+      spawnBossProjectile(sx, sy, vx0, -8, 20 + levelIdx * 3, '#d4a060', 200, 0.25);
       playSFX('bigBoom');
-      tree.atkT = 110 + Math.floor(Math.random() * 60);
-      // Optional second shot in volley
-      if (Math.random() < 0.4) {
+      // Triple barrage
+      setTimeout(() => {
+        if (!tree.dead) spawnBossProjectile(sx, sy, vx0 * 0.9, -9, 20 + levelIdx * 3, '#d4a060', 200, 0.25);
+      }, 250);
+      setTimeout(() => {
+        if (!tree.dead) spawnBossProjectile(sx, sy, vx0 * 1.1, -7.2, 20 + levelIdx * 3, '#d4a060', 200, 0.25);
+      }, 520);
+      // Occasional sand geyser straight up near player
+      if (Math.random() < 0.45) {
         setTimeout(() => {
-          if (!tree.dead) spawnBossProjectile(sx, sy, vx * 0.9, vy - 1, 14 + levelIdx * 2, '#d4a060', 200, 0.25);
-        }, 300);
+          if (!tree.dead) {
+            spawnBossProjectile(pcx, GY - 10, 0, -11, 22, '#e8c080', 160, 0.35);
+            spawnBossProjectile(pcx - 30, GY - 10, -0.5, -10, 22, '#e8c080', 160, 0.35);
+            spawnBossProjectile(pcx + 30, GY - 10, 0.5, -10, 22, '#e8c080', 160, 0.35);
+          }
+        }, 700);
       }
+      tree.atkT = 70 + Math.floor(Math.random() * 40);
+    }
+  } else if (tree.type === 'titan') {
+    // Multi-pattern onslaught: rotating spiral, void lance, meteor storm, homing voidbolts
+    tree.phase = (tree.phase || 0) + 0.03;
+    tree.y = tree.sy + Math.sin(t * 0.03) * 20;
+    if (tree.atkT <= 0) {
+      const sx = tree.x + tree.w/2;
+      const sy = tree.y + 60;
+      const patt = Math.floor(Math.random() * 4);
+      if (patt === 0) {
+        // SPIRAL: 12 voidbolts radiating
+        for (let k = 0; k < 12; k++) {
+          const a = (k / 12) * Math.PI * 2 + tree.phase;
+          const sp = 6;
+          spawnBossProjectile(sx, sy, Math.cos(a) * sp, Math.sin(a) * sp, 20, '#c040ff', 160, 0);
+        }
+        playSFX('bigBoom');
+      } else if (patt === 1) {
+        // VOID LANCE: three aimed high-damage bolts
+        const ang = Math.atan2(pcy - sy, pcx - sx);
+        for (let k = -1; k <= 1; k++) {
+          const a = ang + k * 0.08;
+          spawnBossProjectile(sx, sy, Math.cos(a) * 9, Math.sin(a) * 9, 28, '#ff2060', 140, 0);
+        }
+        playSFX('bigBoom');
+      } else if (patt === 2) {
+        // METEOR STORM: 6 falling rocks
+        for (let k = 0; k < 6; k++) {
+          setTimeout(() => {
+            if (!tree.dead) {
+              const mx = pcx + (Math.random() - 0.5) * 300;
+              spawnBossProjectile(mx, -40, (Math.random() - 0.5) * 2, 5, 24, '#8020c0', 200, 0.35);
+            }
+          }, k * 120);
+        }
+        playSFX('explode');
+      } else {
+        // CROSS BLAST: horizontal & vertical cross
+        for (let k = -1; k <= 1; k += 2) {
+          spawnBossProjectile(sx, sy, k * 7, 0, 22, '#ff60ff', 180, 0);
+          spawnBossProjectile(sx, sy, 0, k * 7, 22, '#ff60ff', 180, 0);
+          spawnBossProjectile(sx, sy, k * 5, k * 5, 22, '#ff60ff', 180, 0);
+          spawnBossProjectile(sx, sy, k * 5, -k * 5, 22, '#ff60ff', 180, 0);
+        }
+        playSFX('bigBoom');
+      }
+      tree.atkT = enraged ? 45 : 85;
     }
   } else if (tree.type === 'dragon') {
-    // Float up/down
-    tree.y = tree.sy + Math.sin(t * 0.03) * 40;
-    tree.phase += 0.02;
+    // Float up/down — faster, wider sweep
+    tree.y = tree.sy + Math.sin(t * 0.04) * 55;
+    tree.phase += 0.03;
     if (tree.atkT <= 0) {
-      // Fireball spread at player
+      // 5-fireball spread + aimed pair
       const sx = tree.x + 30;
       const sy = tree.y + tree.h * 0.55;
       const ang = Math.atan2(pcy - sy, pcx - sx);
-      for (let k = -1; k <= 1; k++) {
-        const a = ang + k * 0.12;
-        const sp = 6 + Math.random();
-        spawnBossProjectile(sx, sy, Math.cos(a) * sp, Math.sin(a) * sp, 12 + levelIdx * 2, '#ff6020', 170, 0.08);
+      for (let k = -2; k <= 2; k++) {
+        const a = ang + k * 0.11;
+        const sp = 7 + Math.random() * 1.5;
+        spawnBossProjectile(sx, sy, Math.cos(a) * sp, Math.sin(a) * sp, 16 + levelIdx * 3, '#ff6020', 170, 0.08);
       }
       playSFX('bigBoom');
-      tree.atkT = 85 + Math.floor(Math.random() * 40);
+      // Meteor drops above player
+      setTimeout(() => {
+        if (!tree.dead) {
+          for (let k = -1; k <= 1; k++) {
+            spawnBossProjectile(pcx + k * 60, -40, 0, 5, 18, '#ff4020', 200, 0.35);
+          }
+        }
+      }, 500);
+      tree.atkT = 55 + Math.floor(Math.random() * 30);
     }
   }
-  // Tree boss: no attack, just breathes and stares
 }
 
 function updateParticles() {
@@ -1248,6 +1738,42 @@ function updateCamera() {
   cam2D.x += (tx - cam2D.x) * 0.1;
   cam2D.x = Math.max(0, Math.min(WW - W, cam2D.x));
   cam2D.y = 0;
+}
+
+function updateMap() {
+  // Ease tank toward selected node
+  const target = MAP_NODES[mapNodeIdx].x - player.w/2;
+  const dx = target - player.x;
+  player.vx = dx * 0.15;
+  player.x += player.vx;
+  if (Math.abs(dx) < 1) { player.x = target; player.vx = 0; }
+  player.f = dx >= 0 ? 1 : -1;
+  // Camera follows
+  const tx = player.x + player.w/2 - W/2;
+  cam2D.x += (tx - cam2D.x) * 0.1;
+  cam2D.x = Math.max(0, Math.min(WW - W, cam2D.x));
+  cam2D.y = 0;
+}
+
+function mapSelect(dir) {
+  if (gameState !== 'map') return;
+  mapNodeIdx = Math.max(0, Math.min(MAP_NODES.length - 1, mapNodeIdx + dir));
+  updateMapHUD();
+  playSFX('jump');
+}
+
+function mapEnter() {
+  if (gameState !== 'map') return;
+  const n = MAP_NODES[mapNodeIdx];
+  if (n.final && !finalBossUnlocked()) {
+    showMessage('THE VOID THRONE REMAINS SEALED.', 140);
+    playSFX('empty');
+    return;
+  }
+  mapHudEl.style.display = 'none';
+  mapTopEl.style.display = 'none';
+  loadLevel(mapNodeIdx);
+  playSFX('secret');
 }
 
 function updateShopZone() {
@@ -1296,11 +1822,20 @@ function renderShop() {
     const affordable = upCanBuy(u);
     const row = document.createElement('div');
     row.className = 'upg' + (maxed ? ' maxed' : '') + (locked ? ' locked' : '');
-    const lvlDisp = u.max === 1 ? (lvl ? 'OWNED' : 'N/A') : 'Lv ' + lvl + '/' + u.max;
-    const costDisp = maxed ? (u.max === 1 ? '' : 'MAX') : (locked ? 'LOCKED' : upCost(u, lvl) + ' \u{1F955}');
+    let lvlDisp, costDisp;
+    if (u.consumable) {
+      lvlDisp = player.ammo + '/' + maxAmmo();
+      costDisp = u.cost + ' \u{1F955}';
+    } else {
+      lvlDisp = u.max === 1 ? (lvl ? 'OWNED' : 'N/A') : 'Lv ' + lvl + '/' + u.max;
+      costDisp = maxed ? (u.max === 1 ? '' : 'MAX') : (locked ? 'LOCKED' : upCost(u, lvl) + ' \u{1F955}');
+    }
     row.innerHTML = '<div class="ic">' + u.i + '</div><div class="info"><div class="n">' + u.n + '</div><div class="d">' + u.d + '</div></div><div class="lvl">' + lvlDisp + '</div><div class="c">' + costDisp + '</div>';
     const btn = document.createElement('button');
-    if (maxed) { btn.textContent = u.max === 1 ? 'OWNED' : 'MAX'; btn.disabled = true; }
+    if (u.consumable) {
+      if (player.ammo >= maxAmmo()) { btn.textContent = 'FULL'; btn.disabled = true; }
+      else { btn.textContent = 'BUY'; btn.disabled = !affordable; }
+    } else if (maxed) { btn.textContent = u.max === 1 ? 'OWNED' : 'MAX'; btn.disabled = true; }
     else if (locked) { btn.textContent = 'LOCKED'; btn.disabled = true; }
     else { btn.textContent = 'BUY'; btn.disabled = !affordable; }
     btn.onclick = () => buyUpgrade(u.id);
@@ -1311,12 +1846,24 @@ function renderShop() {
 function buyUpgrade(id) {
   const u = UPG.find(x => x.id === id);
   if (!u) return;
+  if (u.consumable) {
+    if (player.cr < u.cost) return;
+    if (player.ammo >= maxAmmo()) { showMessage('Magazine already full.', 90); return; }
+    player.cr -= u.cost;
+    player.ammo = Math.min(maxAmmo(), player.ammo + 25);
+    showMessage('+25 BULLETS (' + player.ammo + '/' + maxAmmo() + ')', 100);
+    renderShop();
+    updateHUD();
+    playSFX('buy');
+    return;
+  }
   if (!upCanBuy(u)) return;
   const lvl = upLevel(u.id);
   player.cr -= upCost(u, lvl);
   player.up[id] = lvl + 1;
   if (id === 'armor') player.hp = Math.min(maxHP(), player.hp + 10);
   if (id === 'shcap') player.sh = maxShield();
+  if (id === 'ammomax') player.ammo = Math.min(maxAmmo(), player.ammo + 20);
   if (id === 'mega') showMessage('MEGA CANNON + HOMING MISSILES ACQUIRED!', 220);
   else if (u.max === 1) showMessage(u.n + ' acquired!', 130);
   else showMessage(u.n + ' Lv ' + (lvl + 1) + '!', 100);
@@ -1327,6 +1874,7 @@ function buyUpgrade(id) {
 }
 
 // ===== HUD =====
+let lastOwnedSig = '';
 function updateHUD() {
   const mHp = maxHP();
   hpb.style.width = Math.max(0, player.hp / mHp * 100) + '%';
@@ -1334,6 +1882,36 @@ function updateHUD() {
   shb.style.width = mSh > 0 ? (player.sh / mHp * 100) + '%' : '0%';
   cv1.textContent = player.cr;
   cv2.textContent = uniqueUpgrades();
+  if (stDmgEl) {
+    stDmgEl.textContent = Math.round(bulletDmg());
+    stHpEl.textContent = Math.round(player.hp) + '/' + mHp;
+    const armorReduction = Math.round(damageReduction() * 100);
+    const armorLvl = upLevel('armor');
+    stArmEl.textContent = armorLvl + (armorReduction ? ' -' + armorReduction + '%' : '');
+    const mAmmo = maxAmmo();
+    stAmmoEl.textContent = (player.ammo|0) + '/' + mAmmo;
+    if (stAmmoBox) stAmmoBox.classList.toggle('low', player.ammo <= 5);
+  }
+  // Owned upgrades panel
+  const sig = Object.entries(player.up).map(([k,v])=>k+v).sort().join(',');
+  if (sig !== lastOwnedSig && ownedUpEl) {
+    lastOwnedSig = sig;
+    const parts = [];
+    for (const u of UPG) {
+      if (u.consumable) continue;
+      const lvl = upLevel(u.id);
+      if (!lvl) continue;
+      const lvlTxt = u.max === 1 ? '' : '<span class="lv">' + lvl + '</span>';
+      parts.push('<span class="up" title="' + u.n + ' ' + lvl + '/' + u.max + '"><span class="ic">' + u.i + '</span>' + lvlTxt + '</span>');
+    }
+    for (const u of SECRET_UPG) {
+      const lvl = upLevel(u.id);
+      if (!lvl) continue;
+      const lvlTxt = u.max === 1 ? '' : '<span class="lv">' + lvl + '</span>';
+      parts.push('<span class="up sec" title="SECRET: ' + u.n + '"><span class="ic">' + u.i + '</span>' + lvlTxt + '</span>');
+    }
+    ownedUpEl.innerHTML = parts.join('');
+  }
 }
 
 // ============================================================
@@ -1383,12 +1961,162 @@ function applyBiome() {
   sun.color.setHex(L.sunColor);
 }
 
+function applyMapBiome() {
+  skyMat.uniforms.top.value.setHex(0x3a7cb8);
+  skyMat.uniforms.mid.value.setHex(0xa8d8f0);
+  skyMat.uniforms.bot.value.setHex(0xfae4bc);
+  scene.fog.color.setHex(0xc4dcea);
+  hemi.color.setHex(0xffeac4);
+  hemi.groundColor.setHex(0x3a6b3a);
+  sun.color.setHex(0xfff2d5);
+}
+
+function buildMapScene3D() {
+  // Grass terrain
+  const grassMat = new THREE.MeshLambertMaterial({ color: 0x4a8e3c });
+  const dirtMat = new THREE.MeshLambertMaterial({ color: 0x5a3a22 });
+  const grassGeo = new THREE.BoxGeometry(WW + 1200, 200, 260);
+  const grass = new THREE.Mesh(grassGeo, [dirtMat, dirtMat, grassMat, dirtMat, dirtMat, dirtMat]);
+  grass.position.set(WW/2, -100, -30);
+  grass.receiveShadow = true;
+  meshRoot.add(grass); bgDecor.push(grass);
+  // Bed below
+  const bed = new THREE.Mesh(new THREE.BoxGeometry(WW + 1200, 800, 180), dirtMat);
+  bed.position.set(WW/2, -620, -30);
+  meshRoot.add(bed); bgDecor.push(bed);
+  // Distant rolling hills
+  const hillMat = new THREE.MeshLambertMaterial({ color: 0x6a9e78 });
+  for (let x = -200; x < WW + 200; x += 520) {
+    const h = 160 + (Math.abs(Math.sin(x*0.002)) * 120);
+    const g = new THREE.ConeGeometry(340, h, 6);
+    const m = new THREE.Mesh(g, hillMat);
+    m.position.set(x, h/2 - 20, -900);
+    meshRoot.add(m); bgDecor.push(m);
+  }
+  // Clouds
+  const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85, fog: false });
+  for (let i = 0; i < 22; i++) {
+    const group = new THREE.Group();
+    for (let k = 0; k < 4; k++) {
+      const s = 28 + Math.random() * 22;
+      const g = new THREE.SphereGeometry(s, 10, 8);
+      const m = new THREE.Mesh(g, cloudMat);
+      m.position.set(k*34 - 60, Math.random()*12, Math.random()*10);
+      group.add(m);
+    }
+    group.position.set(-200 + i * (WW / 20), 320 + Math.random() * 90, -500 - Math.random() * 300);
+    group.userData.cloud = true;
+    group.userData.baseX = group.position.x;
+    meshRoot.add(group); bgDecor.push(group);
+  }
+  // Stone-dot path between nodes
+  const pathMat = new THREE.MeshLambertMaterial({ color: 0xc0a070 });
+  const gravelGeo = new THREE.CylinderGeometry(12, 14, 8, 8);
+  for (let i = 0; i < MAP_NODES.length - 1; i++) {
+    const a = MAP_NODES[i], b = MAP_NODES[i+1];
+    const steps = 22;
+    for (let s = 1; s < steps; s++) {
+      const k = s / steps;
+      const wobble = Math.sin(s * 0.9) * 18;
+      const dot = new THREE.Mesh(gravelGeo, pathMat);
+      dot.position.set(a.x + (b.x - a.x) * k, 4, 40 + wobble);
+      meshRoot.add(dot); bgDecor.push(dot);
+    }
+  }
+  // Node landmarks
+  for (let i = 0; i < MAP_NODES.length; i++) {
+    const n = MAP_NODES[i];
+    const group = new THREE.Group();
+    // Stone pedestal
+    const peg = new THREE.Mesh(
+      new THREE.CylinderGeometry(56, 62, 22, 10),
+      new THREE.MeshLambertMaterial({ color: 0x8a8080 })
+    );
+    peg.position.y = 11;
+    group.add(peg);
+    // Level landmark
+    if (n.icon === 'tree') {
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(10, 14, 60, 8), new THREE.MeshLambertMaterial({ color: 0x3e2510 }));
+      trunk.position.y = 52; group.add(trunk);
+      const leaves = new THREE.Mesh(new THREE.ConeGeometry(46, 120, 10), new THREE.MeshLambertMaterial({ color: 0x2d5c26 }));
+      leaves.position.y = 130; group.add(leaves);
+      const leaves2 = new THREE.Mesh(new THREE.ConeGeometry(34, 80, 10), new THREE.MeshLambertMaterial({ color: 0x387028 }));
+      leaves2.position.y = 180; group.add(leaves2);
+    } else if (n.icon === 'pyramid') {
+      const pyr = new THREE.Mesh(new THREE.ConeGeometry(80, 160, 4), new THREE.MeshLambertMaterial({ color: 0xd8a260 }));
+      pyr.position.y = 102; pyr.rotation.y = Math.PI/4; group.add(pyr);
+      const cactus = new THREE.Mesh(new THREE.CylinderGeometry(6, 7, 44, 8), new THREE.MeshLambertMaterial({ color: 0x88aa50 }));
+      cactus.position.set(-40, 44, 40); group.add(cactus);
+    } else if (n.icon === 'volcano') {
+      const base = new THREE.Mesh(new THREE.ConeGeometry(90, 150, 10), new THREE.MeshLambertMaterial({ color: 0x3a2020 }));
+      base.position.y = 97; group.add(base);
+      const crater = new THREE.Mesh(new THREE.CylinderGeometry(32, 44, 18, 10), new THREE.MeshLambertMaterial({ color: 0x1a0808 }));
+      crater.position.y = 175; group.add(crater);
+      const lava = new THREE.Mesh(new THREE.CylinderGeometry(28, 28, 4, 10), new THREE.MeshBasicMaterial({ color: 0xff5020 }));
+      lava.position.y = 182; group.add(lava);
+      // Flame
+      const flame = new THREE.Mesh(new THREE.SphereGeometry(18, 10, 8), new THREE.MeshBasicMaterial({ color: 0xff8030, transparent: true, opacity: 0.8, fog: false }));
+      flame.position.y = 200; flame.userData.flame = true; group.add(flame);
+    } else if (n.icon === 'throne') {
+      const unlocked = finalBossUnlocked();
+      const throneCol = unlocked ? 0x22103a : 0x1a1a22;
+      const throneMat = new THREE.MeshLambertMaterial({ color: throneCol });
+      // Dark obsidian throne
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(70, 30, 60), throneMat);
+      seat.position.y = 45; group.add(seat);
+      const back = new THREE.Mesh(new THREE.BoxGeometry(70, 130, 18), throneMat);
+      back.position.set(0, 115, -20); group.add(back);
+      // Crown-like spikes on backrest
+      const spikeMat = new THREE.MeshLambertMaterial({ color: unlocked ? 0x6a20a0 : 0x3a3a44 });
+      for (let k = -2; k <= 2; k++) {
+        const sp = new THREE.Mesh(new THREE.ConeGeometry(8, 30 + Math.abs(k)*6, 5), spikeMat);
+        sp.position.set(k*16, 190, -20); group.add(sp);
+      }
+      // Glowing gem (color shows unlock state)
+      const gemMat = new THREE.MeshBasicMaterial({ color: unlocked ? 0xff2060 : 0x444466, transparent: true, opacity: 0.9, fog: false });
+      const gem = new THREE.Mesh(new THREE.OctahedronGeometry(14, 0), gemMat);
+      gem.position.set(0, 70, 32); group.add(gem);
+      gem.userData.flame = true; // reuse flame bob
+      if (unlocked) {
+        const pl = new THREE.PointLight(0xff2060, 1.2, 200);
+        pl.position.set(0, 90, 30); group.add(pl);
+      } else {
+        // Chains (simple bars crossing the seat)
+        const chainMat = new THREE.MeshLambertMaterial({ color: 0x8a8890 });
+        for (const cz of [-10, 10]) {
+          const c = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 90, 6), chainMat);
+          c.rotation.z = 0.4; c.position.set(0, 60, cz); group.add(c);
+        }
+      }
+    }
+    // Beaten flag
+    const isBeaten = n.final ? finalBossDefeated : beaten[i];
+    if (isBeaten) {
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.2, 80, 5), new THREE.MeshLambertMaterial({ color: 0x888 }));
+      pole.position.set(50, 62, 20); group.add(pole);
+      const flag = new THREE.Mesh(new THREE.BoxGeometry(32, 22, 1.5), new THREE.MeshBasicMaterial({ color: n.final ? 0xff2060 : 0xffd040 }));
+      flag.position.set(65, 90, 20); group.add(flag);
+    }
+    group.position.set(n.x, 0, -40);
+    group.userData.mapNode = i;
+    meshRoot.add(group); bgDecor.push(group);
+  }
+  // Selection ring (overlay to show which node is active)
+  const ringGeo = new THREE.TorusGeometry(48, 5, 8, 24);
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0xffdd40, transparent: true, opacity: 0.85, fog: false });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = Math.PI/2;
+  ring.userData.selRing = true;
+  meshRoot.add(ring); bgDecor.push(ring);
+}
+
 function buildGround3D() {
   const L = LVL();
   const dirtMat = new THREE.MeshLambertMaterial({ color: L.dirt });
-  const bedGeo = new THREE.BoxGeometry(WW + 1200, 800, 260);
+  // Deep bed so pits read as real drops; platforms supply their own walls above
+  const bedGeo = new THREE.BoxGeometry(WW + 1200, 800, 180);
   const bed = new THREE.Mesh(bedGeo, dirtMat);
-  bed.position.set(WW/2, -400, -20);
+  bed.position.set(WW/2, -620, -30);
   bed.receiveShadow = true;
   meshRoot.add(bed);
   bgDecor.push(bed);
@@ -1502,7 +2230,8 @@ function buildPlatforms3D() {
   const rockMat = new THREE.MeshLambertMaterial({ color: L.rock });
   for (const pl of plats) {
     const depth = pl.t === 'g' ? 120 : 40;
-    const g = new THREE.BoxGeometry(pl.w, pl.h, depth);
+    const gh = pl.t === 'g' ? 360 : pl.h;
+    const g = new THREE.BoxGeometry(pl.w, gh, depth);
     let mat;
     if (pl.t === 'g') {
       mat = [dirtMat, dirtMat, grassMat, dirtMat, dirtMat, dirtMat];
@@ -1512,7 +2241,7 @@ function buildPlatforms3D() {
       mat = rockMat;
     }
     const m = new THREE.Mesh(g, mat);
-    m.position.set(pl.x + pl.w/2, toY(pl.y + pl.h/2), pl.t === 'g' ? -30 : 0);
+    m.position.set(pl.x + pl.w/2, toY(pl.y) - gh/2, pl.t === 'g' ? -30 : 0);
     m.castShadow = true;
     m.receiveShadow = true;
     meshRoot.add(m);
@@ -1582,6 +2311,7 @@ function buildTree3D() {
   treeGroup = new THREE.Group();
   if (tree.type === 'worm') return buildWorm3D();
   if (tree.type === 'dragon') return buildDragon3D();
+  if (tree.type === 'titan') return buildTitan3D();
   return buildGreatTree3D();
 }
 
@@ -1898,6 +2628,109 @@ function buildDragon3D() {
   treeGroup.userData.flame = flame;
 
   treeGroup.position.set(cx, toY(tree.y + tree.h/2), 0);
+  meshRoot.add(treeGroup);
+}
+
+// ----- VOIDLORD TYRANNOS (FINAL BOSS) -----
+function buildTitan3D() {
+  const cx = tree.x + tree.w/2;
+  const obsidianMat = new THREE.MeshLambertMaterial({ color: 0x22103a });
+  const glowMat = new THREE.MeshBasicMaterial({ color: 0xff2060 });
+  const spineMat = new THREE.MeshLambertMaterial({ color: 0x080010 });
+  const robeMat = new THREE.MeshLambertMaterial({ color: 0x4a1070 });
+  treeGroup.userData.foliageMat = obsidianMat;
+  treeGroup.userData.trunkMat = robeMat;
+
+  // Base / pedestal (partially buried)
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(70, 90, 40, 8), spineMat);
+  base.position.set(0, 20, 0); base.castShadow = true; treeGroup.add(base);
+
+  // Flowing robe (truncated cone)
+  const robe = new THREE.Mesh(new THREE.CylinderGeometry(55, 85, 140, 10), robeMat);
+  robe.position.set(0, 100, 0); robe.castShadow = true; treeGroup.add(robe);
+
+  // Chest armor
+  const chest = new THREE.Mesh(new THREE.BoxGeometry(100, 80, 60), obsidianMat);
+  chest.position.set(0, 200, 0); chest.castShadow = true; treeGroup.add(chest);
+
+  // Glowing chest core
+  const core = new THREE.Mesh(new THREE.OctahedronGeometry(18, 0), glowMat);
+  core.position.set(0, 200, 32); treeGroup.add(core);
+  treeGroup.userData.core = core;
+  const coreLight = new THREE.PointLight(0xff2060, 1.6, 260);
+  coreLight.position.set(0, 200, 40); treeGroup.add(coreLight);
+  treeGroup.userData.coreLight = coreLight;
+
+  // Shoulders (big pauldrons with spikes)
+  const pauldronMat = new THREE.MeshLambertMaterial({ color: 0x0e0618 });
+  for (const sx of [-62, 62]) {
+    const pl = new THREE.Mesh(new THREE.SphereGeometry(28, 12, 10), pauldronMat);
+    pl.position.set(sx, 232, 0); pl.scale.set(1.1, 0.9, 1.1); treeGroup.add(pl);
+    for (let k = 0; k < 4; k++) {
+      const spikeG = new THREE.ConeGeometry(4, 22, 5);
+      const sp = new THREE.Mesh(spikeG, glowMat);
+      const a = k / 4 * Math.PI;
+      sp.position.set(sx + Math.cos(a) * 18, 246 + Math.sin(a) * 10, Math.sin(a) * 14);
+      sp.rotation.z = (sx < 0 ? -1 : 1) * 0.5;
+      treeGroup.add(sp);
+    }
+  }
+
+  // Arms — hanging down
+  for (const ax of [-62, 62]) {
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(14, 12, 90, 8), obsidianMat);
+    arm.position.set(ax, 178, 0); treeGroup.add(arm);
+    // Clawed hand
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(18, 10, 8), spineMat);
+    hand.position.set(ax, 128, 0); treeGroup.add(hand);
+    for (let k = 0; k < 3; k++) {
+      const claw = new THREE.Mesh(new THREE.ConeGeometry(3, 14, 5), glowMat);
+      claw.position.set(ax + (k - 1) * 8, 112, 6); claw.rotation.x = Math.PI; treeGroup.add(claw);
+    }
+  }
+
+  // Head (skull-like)
+  const head = new THREE.Mesh(new THREE.SphereGeometry(36, 16, 12), obsidianMat);
+  head.position.set(0, 290, 0); head.scale.set(1, 1.1, 0.95); head.castShadow = true;
+  treeGroup.add(head);
+
+  // Crown of horns
+  treeGroup.userData.eyeMats = [];
+  for (let k = -2; k <= 2; k++) {
+    const horn = new THREE.Mesh(new THREE.ConeGeometry(5, 50 - Math.abs(k) * 6, 6), spineMat);
+    horn.position.set(k * 14, 330, -4);
+    horn.rotation.z = k * 0.22;
+    treeGroup.add(horn);
+  }
+  // Glowing eyes
+  for (const ex of [-14, 14]) {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(5, 10, 8), glowMat.clone());
+    eye.position.set(ex, 295, 30);
+    treeGroup.add(eye);
+    treeGroup.userData.eyeMats.push(eye.material);
+    const pl = new THREE.PointLight(0xff2060, 0.9, 160);
+    pl.position.set(ex, 295, 36); treeGroup.add(pl);
+  }
+  // Jaw-line of fangs
+  const toothMat = new THREE.MeshLambertMaterial({ color: 0xf0e0a0 });
+  for (let i = -3; i <= 3; i++) {
+    const tg = new THREE.ConeGeometry(2.5, 8, 4);
+    const tm = new THREE.Mesh(tg, toothMat); tm.rotation.x = Math.PI;
+    tm.position.set(i * 6, 272, 30); treeGroup.add(tm);
+  }
+
+  // Hovering aura rings
+  const ringGeo = new THREE.TorusGeometry(70, 3, 6, 24);
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0xff2060, transparent: true, opacity: 0.7, fog: false });
+  const ring1 = new THREE.Mesh(ringGeo, ringMat);
+  ring1.rotation.x = Math.PI / 2; ring1.position.y = 40;
+  treeGroup.add(ring1); treeGroup.userData.ring1 = ring1;
+  const ring2 = new THREE.Mesh(ringGeo, ringMat.clone());
+  ring2.rotation.x = Math.PI / 2; ring2.position.y = 6;
+  ring2.scale.setScalar(0.75);
+  treeGroup.add(ring2); treeGroup.userData.ring2 = ring2;
+
+  treeGroup.position.set(cx, toY(tree.y + tree.h), 0);
   meshRoot.add(treeGroup);
 }
 
@@ -2250,7 +3083,7 @@ function makeEnemyMesh(e) {
     const tail = new THREE.Mesh(new THREE.BoxGeometry(6, 4, 4), bodyMat);
     tail.position.set(-24, 2, 0);
     g.add(tail);
-  } else {
+  } else if (e.t === 'bat') {
     const bodyMat = new THREE.MeshLambertMaterial({ color: 0x2a1a36 });
     const b = new THREE.Mesh(new THREE.SphereGeometry(8, 12, 10), bodyMat);
     b.scale.set(1.3, 1, 1.3);
@@ -2265,6 +3098,60 @@ function makeEnemyMesh(e) {
     const em = new THREE.MeshBasicMaterial({ color: 0xff2020 });
     const le = new THREE.Mesh(new THREE.SphereGeometry(1.2, 6, 4), em); le.position.set(-2.5, 0, 7); g.add(le);
     const re = new THREE.Mesh(new THREE.SphereGeometry(1.2, 6, 4), em); re.position.set(2.5, 0, 7); g.add(re);
+  } else if (e.t === 'brute') {
+    const bodyMat = new THREE.MeshLambertMaterial({ color: 0x6a4a2a });
+    const b = new THREE.Mesh(new THREE.BoxGeometry(56, 40, 26), bodyMat);
+    b.position.set(0, 0, 0);
+    g.add(b);
+    const helmetMat = new THREE.MeshLambertMaterial({ color: 0x3a2414 });
+    const helmet = new THREE.Mesh(new THREE.BoxGeometry(30, 12, 22), helmetMat);
+    helmet.position.set(0, 22, 0);
+    g.add(helmet);
+    const hornMat = new THREE.MeshLambertMaterial({ color: 0xf4f0e0 });
+    const lh = new THREE.Mesh(new THREE.ConeGeometry(3, 14, 6), hornMat); lh.position.set(-12, 32, 0); g.add(lh);
+    const rh = new THREE.Mesh(new THREE.ConeGeometry(3, 14, 6), hornMat); rh.position.set(12, 32, 0); g.add(rh);
+    const em = new THREE.MeshBasicMaterial({ color: 0xffdd30 });
+    const le = new THREE.Mesh(new THREE.SphereGeometry(2, 6, 4), em); le.position.set(-6, 22, 11.2); g.add(le);
+    const re = new THREE.Mesh(new THREE.SphereGeometry(2, 6, 4), em); re.position.set(6, 22, 11.2); g.add(re);
+    // Arms (clubs)
+    const armMat = new THREE.MeshLambertMaterial({ color: 0x5a3a22 });
+    for (const ax of [-30, 30]) {
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(10, 24, 10), armMat);
+      arm.position.set(ax, -2, 0);
+      g.add(arm);
+    }
+    // Legs
+    const legMat = new THREE.MeshLambertMaterial({ color: 0x3a2414 });
+    for (const lx of [-14, 14]) {
+      const l = new THREE.Mesh(new THREE.BoxGeometry(10, 14, 10), legMat);
+      l.position.set(lx, -26, 0);
+      g.add(l);
+    }
+  } else if (e.t === 'imp') {
+    const bodyMat = new THREE.MeshLambertMaterial({ color: 0x8a2010 });
+    const b = new THREE.Mesh(new THREE.SphereGeometry(10, 12, 10), bodyMat);
+    b.scale.set(1.2, 1.1, 1.2);
+    g.add(b);
+    // Horns
+    const hornMat = new THREE.MeshLambertMaterial({ color: 0x1a0808 });
+    const lh = new THREE.Mesh(new THREE.ConeGeometry(2, 8, 6), hornMat); lh.position.set(-5, 10, 0); lh.rotation.z = -0.3; g.add(lh);
+    const rh = new THREE.Mesh(new THREE.ConeGeometry(2, 8, 6), hornMat); rh.position.set(5, 10, 0); rh.rotation.z = 0.3; g.add(rh);
+    // Glowing eyes
+    const em = new THREE.MeshBasicMaterial({ color: 0xffaa20 });
+    const le = new THREE.Mesh(new THREE.SphereGeometry(1.6, 6, 4), em); le.position.set(-3.5, 2, 10); g.add(le);
+    const re = new THREE.Mesh(new THREE.SphereGeometry(1.6, 6, 4), em); re.position.set(3.5, 2, 10); g.add(re);
+    // Flame tail (small cone below)
+    const flameMat = new THREE.MeshBasicMaterial({ color: 0xffb020, transparent: true, opacity: 0.9 });
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(4, 8, 6), flameMat);
+    flame.position.set(0, -12, 0);
+    flame.rotation.x = Math.PI;
+    g.add(flame);
+    // Wings
+    const wingMat = new THREE.MeshLambertMaterial({ color: 0x3a0808, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
+    const wingG = new THREE.BoxGeometry(16, 1, 10);
+    const lw = new THREE.Mesh(wingG, wingMat); lw.position.set(-12, 2, 0); g.add(lw);
+    const rw = new THREE.Mesh(wingG, wingMat); rw.position.set(12, 2, 0); g.add(rw);
+    g.userData.lw = lw; g.userData.rw = rw;
   }
   // Health bar (small plane)
   const hbG = new THREE.PlaneGeometry(36, 3);
@@ -2371,6 +3258,8 @@ function sync() {
   const camX = cam2D.x + W/2 + sx;
   camera.position.set(camX, 260 + sy, 620);
   camera.lookAt(camX, 240, 0);
+  // Sky follows camera so it never clips
+  skyMesh.position.set(camX, 260, 620);
   // Sun follows camera so the shadow frustum covers the current viewport
   sun.position.set(camX - 300, 700, 500);
   sun.target.position.set(camX, 0, 0);
@@ -2386,6 +3275,25 @@ function sync() {
       d.position.x = d.userData.baseX + t * 0.15;
       if (d.position.x > WW + 600) d.position.x -= WW + 1200;
       d.position.x -= cam2D.x * 0.2;
+    }
+  }
+
+  // Map selection ring + volcano flame bob
+  if (gameState === 'map') {
+    for (const d of bgDecor) {
+      if (d.userData && d.userData.selRing) {
+        const n = MAP_NODES[mapNodeIdx];
+        d.position.set(n.x, 6, 10);
+        const s = 1 + Math.sin(t*0.12) * 0.08;
+        d.scale.set(s, s, 1);
+        d.material.opacity = 0.65 + Math.sin(t*0.15) * 0.2;
+      }
+      d.traverse && d.traverse(nn => {
+        if (nn.userData && nn.userData.flame) {
+          nn.position.y = 200 + Math.sin(t*0.2) * 4;
+          nn.scale.setScalar(1 + Math.sin(t*0.25) * 0.15);
+        }
+      });
     }
   }
 
@@ -2459,6 +3367,28 @@ function sync() {
         treeGroup.scale.multiplyScalar(0.99);
         if (tree.fallT > 140) treeGroup.visible = false;
       }
+    } else if (tree.type === 'titan') {
+      treeGroup.position.set(tree.x + tree.w/2, toY(tree.y + tree.h), 0);
+      const enraged = tree.hp / tree.mhp < 0.4;
+      // Pulse core + eyes; spin rings
+      if (treeGroup.userData.core) {
+        const c = treeGroup.userData.core;
+        c.rotation.y = t * 0.12;
+        const s = 1 + Math.sin(t * 0.25) * 0.15;
+        c.scale.setScalar(s * (enraged ? 1.3 : 1));
+      }
+      if (treeGroup.userData.coreLight) {
+        treeGroup.userData.coreLight.intensity = 1.4 + Math.sin(t * 0.2) * 0.5;
+      }
+      if (treeGroup.userData.ring1) treeGroup.userData.ring1.rotation.z = t * 0.06;
+      if (treeGroup.userData.ring2) treeGroup.userData.ring2.rotation.z = -t * 0.08;
+      for (const em of treeGroup.userData.eyeMats) em.color.setRGB(1, 0.15 * pulse, 0.4 * pulse);
+      treeGroup.userData.foliageMat.color.copy(parseColor(tree.hf > 0 ? '#ff80c0' : (enraged ? '#4a1840' : '#22103a')));
+      if (tree.dead) {
+        treeGroup.position.y -= 1.5;
+        treeGroup.scale.multiplyScalar(0.985);
+        if (tree.fallT > 140) treeGroup.visible = false;
+      }
     } else if (tree.type === 'dragon') {
       // Position driven by tree.x/y
       treeGroup.position.set(tree.x + tree.w/2, toY(tree.y + tree.h/2), 0);
@@ -2526,8 +3456,8 @@ function sync() {
         }
       }
     });
-    // Bat wing flap
-    if (e.t === 'bat' && e.mesh.userData.lw) {
+    // Bat/Imp wing flap
+    if ((e.t === 'bat' || e.t === 'imp') && e.mesh.userData.lw) {
       const wa = Math.sin(t * 0.5) * 0.4;
       e.mesh.userData.lw.rotation.z = wa;
       e.mesh.userData.rw.rotation.z = -wa;
@@ -2616,10 +3546,12 @@ const SPB = 60 / BPM;
 const BAR = SPB * 4;
 
 const N = { // Note frequencies (Hz)
-  E2: 82.41, F2: 87.31, G2: 98, A2: 110, B2: 123.47, C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196,
+  E1: 41.2, F1: 43.65, G1: 49, A1: 55, B1: 61.74,
+  C2: 65.41, D2: 73.42, E2: 82.41, F2: 87.31, G2: 98, A2: 110, B2: 123.47,
+  C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196,
   A3: 220, B3: 246.94, C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392,
   A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.26, F5: 698.46, G5: 783.99,
-  A5: 880,
+  A5: 880, B5: 987.77, C6: 1046.5, D6: 1174.66, E6: 1318.51,
 };
 
 // Heroic tank march — 8 bars in A minor. Each entry: [note, beatOffset, durBeats]
@@ -2644,6 +3576,38 @@ const BASS = [
   ['A2',28,4],
 ];
 const BARS = 8;
+
+// ===== ORCHESTRAL DEATH METAL (final boss) =====
+// Tremolo-picked E minor shred. Each melody entry will be split into 16th-note tremolo strokes.
+const DM_MELODY = [
+  ['E4',  0, 1], ['G4',  1, 1], ['B4',  2, 1], ['A4',  3, 1],
+  ['E4',  4, 1], ['G4',  5, 1], ['B4',  6, 1], ['C5',  7, 1],
+  ['D5',  8, 1], ['B4',  9, 1], ['A4', 10, 1], ['G4', 11, 1],
+  ['F4', 12, 1], ['E4', 13, 1], ['D4', 14, 2],
+  ['E4', 16, 1], ['G4', 17, 1], ['B4', 18, 1], ['E5', 19, 1],
+  ['D5', 20, 1], ['C5', 21, 1], ['B4', 22, 1], ['A4', 23, 1],
+  ['G4', 24, 1], ['A4', 25, 1], ['B4', 26, 1], ['C5', 27, 1],
+  ['D5', 28, 1], ['C5', 29, 1], ['B4', 30, 1], ['E4', 31, 1],
+];
+// Power-chord bass — palm-muted feel via low pulse + distorted saw.
+const DM_BASS = [
+  ['E2', 0, 1], ['E2', 1, 1], ['E2', 2, 1], ['E2', 3, 1],
+  ['E2', 4, 1], ['E2', 5, 1], ['E2', 6, 1], ['D2', 7, 1],
+  ['C2', 8, 1], ['C2', 9, 1], ['C2', 10, 1], ['C2', 11, 1],
+  ['D2', 12, 1], ['D2', 13, 1], ['D2', 14, 1], ['D2', 15, 1],
+  ['E2', 16, 1], ['E2', 17, 1], ['E2', 18, 1], ['E2', 19, 1],
+  ['G2', 20, 1], ['G2', 21, 1], ['A2', 22, 1], ['A2', 23, 1],
+  ['B2', 24, 1], ['B2', 25, 1], ['A2', 26, 1], ['G2', 27, 1],
+  ['E2', 28, 4],
+];
+// Sustained orchestral pad — long slow chords, two lines stacked.
+const DM_PAD = [
+  ['E3', 0, 8], ['B3', 0, 8],
+  ['A2', 8, 8], ['E3', 8, 8],
+  ['G2', 16, 8], ['D3', 16, 8],
+  ['E2', 24, 8], ['B2', 24, 8],
+];
+const DM_BARS = 8;
 
 function initAudio() {
   if (actx) return;
@@ -2686,6 +3650,7 @@ function toggleMusic() {
 }
 
 function scheduleBar(barStart, barIdx) {
+  if (inFinalBoss) { scheduleBarDM(barStart, barIdx); return; }
   // Melody
   for (const [note, beat, dur] of MELODY) {
     const bar = Math.floor(beat / 4);
@@ -2712,6 +3677,142 @@ function scheduleBar(barStart, barIdx) {
   }
   // Final bar triumph — crash on beat 1
   if (barIdx === 0 || barIdx === 4) crash(barStart);
+}
+
+function scheduleBarDM(barStart, barIdx) {
+  // Tremolo-picked lead: each melody note fired as 4 rapid 16ths.
+  for (const [note, beat, dur] of DM_MELODY) {
+    const bar = Math.floor(beat / 4);
+    if (bar !== barIdx) continue;
+    const localBeat = beat - bar * 4;
+    const tStart = barStart + localBeat * SPB;
+    const tSubs = Math.max(4, Math.round(dur * 4));
+    const subDur = (dur * SPB) / tSubs;
+    for (let i = 0; i < tSubs; i++) {
+      distOsc(N[note], tStart + i * subDur, subDur * 0.95, 0.06);
+      // Octave-up ghost for brightness
+      osc(N[note] * 2, tStart + i * subDur, subDur * 0.9, 'square', 0.015);
+    }
+  }
+  // Power-chord bass (root + fifth), palm-muted sawtooth.
+  for (const [note, beat, dur] of DM_BASS) {
+    const bar = Math.floor(beat / 4);
+    if (bar !== barIdx) continue;
+    const localBeat = beat - bar * 4;
+    const tStart = barStart + localBeat * SPB;
+    powerChord(N[note], tStart, dur * SPB * 0.9, 0.14);
+  }
+  // Orchestral pad (slow attack choir).
+  for (const [note, beat, dur] of DM_PAD) {
+    const bar = Math.floor(beat / 4);
+    if (bar !== barIdx) continue;
+    const localBeat = beat - bar * 4;
+    pad(N[note], barStart + localBeat * SPB, dur * SPB, 0.05);
+  }
+  // Double-bass drums: kick on every 8th, extra 16th stomps on beat 1 & 3
+  for (let beat = 0; beat < 4; beat++) {
+    const bt = barStart + beat * SPB;
+    kick(bt);
+    kick(bt + SPB / 2);
+    if (beat === 0 || beat === 2) kick(bt + SPB / 4);
+    if (beat === 1 || beat === 3) snare(bt);
+    hat(bt, false);
+    hat(bt + SPB / 2, true);
+  }
+  // Crash + timpani on big downbeats
+  if (barIdx === 0 || barIdx === 4) crash(barStart);
+  if (barIdx === 0 || barIdx === 2 || barIdx === 4 || barIdx === 6) timpani(barStart);
+}
+
+// Distorted oscillator — sawtooth through WaveShaper for grind.
+function distOsc(freq, start, dur, vol) {
+  const o = actx.createOscillator();
+  const g = actx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.value = freq;
+  const ws = actx.createWaveShaper();
+  // Soft-clip curve for distortion
+  const n = 128;
+  const curve = new Float32Array(n * 2 + 1);
+  for (let i = 0; i <= n * 2; i++) {
+    const x = (i - n) / n;
+    curve[i] = Math.tanh(x * 4);
+  }
+  ws.curve = curve;
+  const hp = actx.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = 120;
+  const lp = actx.createBiquadFilter();
+  lp.type = 'lowpass'; lp.frequency.value = 3200;
+  g.gain.setValueAtTime(0, start);
+  g.gain.linearRampToValueAtTime(vol, start + 0.003);
+  g.gain.setValueAtTime(vol, start + dur - 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, start + dur + 0.01);
+  o.connect(ws).connect(hp).connect(lp).connect(g).connect(masterGain);
+  o.start(start);
+  o.stop(start + dur + 0.02);
+}
+
+// Power chord: root + perfect fifth, distorted palm mute feel.
+function powerChord(rootFreq, start, dur, vol) {
+  const fifth = rootFreq * 1.4983;
+  distOsc(rootFreq, start, dur, vol);
+  distOsc(fifth, start, dur, vol * 0.7);
+  // Sub sine for weight
+  const o = actx.createOscillator();
+  const g = actx.createGain();
+  o.type = 'sine';
+  o.frequency.value = rootFreq * 0.5;
+  g.gain.setValueAtTime(0, start);
+  g.gain.linearRampToValueAtTime(vol * 0.9, start + 0.01);
+  g.gain.setValueAtTime(vol * 0.9, start + dur - 0.03);
+  g.gain.exponentialRampToValueAtTime(0.0001, start + dur + 0.02);
+  o.connect(g).connect(masterGain);
+  o.start(start);
+  o.stop(start + dur + 0.04);
+}
+
+// Orchestral pad — sine + triangle stack with slow attack.
+function pad(freq, start, dur, vol) {
+  const atk = 0.25, rel = 0.4;
+  for (const [type, mult, v] of [['sine', 1, vol], ['triangle', 2, vol * 0.5], ['sine', 1.5, vol * 0.4]]) {
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    o.type = type;
+    o.frequency.value = freq * mult;
+    g.gain.setValueAtTime(0, start);
+    g.gain.linearRampToValueAtTime(v, start + atk);
+    g.gain.setValueAtTime(v, start + Math.max(atk, dur - rel));
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur + 0.1);
+    o.connect(g).connect(masterGain);
+    o.start(start);
+    o.stop(start + dur + 0.15);
+  }
+}
+
+// Timpani — deep tuned drum for dramatic accents.
+function timpani(start) {
+  const o = actx.createOscillator();
+  const g = actx.createGain();
+  o.type = 'sine';
+  o.frequency.setValueAtTime(110, start);
+  o.frequency.exponentialRampToValueAtTime(55, start + 0.5);
+  g.gain.setValueAtTime(0.5, start);
+  g.gain.exponentialRampToValueAtTime(0.0001, start + 0.55);
+  o.connect(g).connect(masterGain);
+  o.start(start);
+  o.stop(start + 0.6);
+  // Body noise
+  const dur = 0.3;
+  const buf = actx.createBuffer(1, actx.sampleRate * dur, actx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+  const src = actx.createBufferSource(); src.buffer = buf;
+  const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 300;
+  const bg = actx.createGain();
+  bg.gain.setValueAtTime(0.18, start);
+  bg.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+  src.connect(lp).connect(bg).connect(masterGain);
+  src.start(start); src.stop(start + dur);
 }
 
 function osc(freq, start, dur, type, vol, lowpass) {
@@ -2889,6 +3990,16 @@ function playSFX(kind) {
       o.connect(g).connect(masterGain);
       o.start(now + i * 0.06); o.stop(now + i * 0.06 + 0.24);
     }
+  } else if (kind === 'empty') {
+    const o = actx.createOscillator();
+    const g = actx.createGain();
+    o.type = 'square';
+    o.frequency.setValueAtTime(180, now);
+    o.frequency.exponentialRampToValueAtTime(90, now + 0.07);
+    g.gain.setValueAtTime(0.08, now);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+    o.connect(g).connect(masterGain);
+    o.start(now); o.stop(now + 0.1);
   } else if (kind === 'treeFall') {
     const dur = 2;
     const buf = actx.createBuffer(1, actx.sampleRate * dur, actx.sampleRate);
